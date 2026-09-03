@@ -218,6 +218,7 @@ async function analyzeWithAI(text) {
     };
   }
 
+  // Model Gemini terbaru
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const prompt = `Analisis catatan pembelajaran ringkas berikut: "${text}".
   Berikan output DALAM FORMAT JSON SAJA dengan struktur persis:
