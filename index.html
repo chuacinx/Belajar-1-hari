@@ -3,50 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Tracker AI</title>
+<title>Knowledge Map AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg: #090d16;
+  --card-bg: rgba(17, 24, 39, 0.7);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --accent: #10b981;
+  --accent-glow: rgba(16, 185, 129, 0.15);
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --input-bg: #030712;
+}
+
 * { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f5f7; color: #17181b; line-height: 1.5; }
-.app { max-width: 760px; margin: auto; padding: 20px 16px; }
+body { 
+  margin: 0; 
+  font-family: 'Plus Jakarta Sans', sans-serif; 
+  background-color: var(--bg); 
+  color: var(--text-main); 
+  line-height: 1.6;
+  background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+.app { max-width: 780px; margin: auto; padding: 24px 16px 40px; }
 h1, h2, h3, p { margin-top: 0; }
-h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; }
-.sub { color: #6b7078; font-size: 14px; margin-bottom: 20px; }
-.card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-h2 { font-size: 18px; margin-bottom: 16px; }
-label { display: block; font-size: 12px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; margin: 12px 0 6px; }
+
+header { margin-bottom: 24px; text-align: left; }
+h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; color: #fff; margin-bottom: 4px; }
+.sub { color: var(--text-muted); font-size: 14px; font-weight: 400; }
+
+.card { 
+  background: var(--card-bg); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border); 
+  border-radius: 20px; 
+  padding: 24px; 
+  margin-bottom: 20px; 
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+h2 { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); margin-bottom: 18px; }
+
+label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 6px; }
 label:first-of-type { margin-top: 0; }
-input, textarea, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font: inherit; background: #fff; color: inherit; transition: border-color 0.2s; }
-input:focus, textarea:focus, select:focus { outline: none; border-color: #0f172a; }
-textarea { min-height: 90px; resize: vertical; }
-button { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 14px; cursor: pointer; background: #0f172a; color: white; transition: opacity 0.2s; }
-button:hover { opacity: 0.9; }
-button:disabled { opacity: 0.5; cursor: not-allowed; }
-button.secondary { background: #f1f5f9; color: #334155; }
-button.secondary:hover { background: #e2e8f0; }
-button.danger { background: #fee2e2; color: #991b1b; }
-button.danger:hover { background: #fecaca; }
-.row { display: flex; gap: 10px; }
+
+input, textarea, select { 
+  width: 100%; 
+  border: 1px solid var(--card-border); 
+  border-radius: 12px; 
+  padding: 14px; 
+  font: inherit; 
+  font-size: 14px;
+  background: var(--input-bg); 
+  color: #fff; 
+  transition: all 0.2s ease; 
+}
+input:focus, textarea:focus, select:focus { 
+  outline: none; 
+  border-color: var(--accent); 
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+textarea { min-height: 100px; resize: vertical; }
+
+button { 
+  border: 0; 
+  border-radius: 12px; 
+  padding: 14px 20px; 
+  font-weight: 700; 
+  font-size: 14px; 
+  cursor: pointer; 
+  background: var(--accent); 
+  color: #030712; 
+  transition: all 0.2s ease; 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+button:hover { opacity: 0.9; transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+button.secondary { background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid var(--card-border); }
+button.secondary:hover { background: rgba(255, 255, 255, 0.1); }
+button.danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2); }
+button.danger:hover { background: rgba(239, 68, 68, 0.25); }
+
+.row { display: flex; gap: 12px; }
 .row > * { flex: 1; }
+
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.stat { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 14px; text-align: center; }
-.num { font-size: 24px; font-weight: 800; color: #0f172a; }
-.small { font-size: 12px; color: #64748b; margin-top: 2px; }
-.entry { border-top: 1px solid #f1f5f9; padding: 16px 0; }
+.stat { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; text-align: center; }
+.num { font-size: 26px; font-weight: 800; color: #fff; }
+.small { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.entry { border-top: 1px solid var(--card-border); padding: 20px 0; }
 .entry:first-child { border-top: 0; padding-top: 0; }
-.badge { display: inline-block; padding: 3px 10px; border-radius: 99px; background: #e2e8f0; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 8px; }
-.meta { font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
-.note { white-space: pre-wrap; word-break: break-word; color: #1e293b; }
-.ai-summary { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-top: 8px; }
-.actions { display: flex; gap: 8px; margin-top: 12px; }
-.actions button { padding: 6px 12px; font-size: 12px; }
-.progress { height: 8px; background: #f1f5f9; border-radius: 99px; overflow: hidden; margin-top: 6px; }
-.bar { height: 100%; background: #0f172a; border-radius: 99px; }
-.topic { margin-bottom: 12px; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 99px; background: var(--accent-glow); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.meta { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.note { color: #e5e7eb; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+.ai-summary { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent); color: #d1fae5; padding: 12px 14px; border-radius: 0 10px 10px 0; font-size: 13px; margin-top: 12px; }
+
+.actions { display: flex; gap: 8px; margin-top: 14px; }
+.actions button { padding: 8px 14px; font-size: 12px; }
+
+.progress { height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.bar { height: 100%; background: var(--accent); border-radius: 99px; }
+.topic { margin-bottom: 14px; }
 .topichead { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; }
-.empty { color: #94a3b8; text-align: center; padding: 32px 16px; font-size: 14px; }
-.filter-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
-.filter-btn { padding: 6px 12px; border-radius: 99px; font-size: 12px; background: #f1f5f9; color: #64748b; white-space: nowrap; border: none; cursor: pointer; }
-.filter-btn.active { background: #0f172a; color: white; }
+
+.empty { color: var(--text-muted); text-align: center; padding: 40px 16px; font-size: 14px; }
+
+.filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-btn { padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: var(--text-muted); white-space: nowrap; border: 1px solid var(--card-border); cursor: pointer; transition: all 0.2s; }
+.filter-btn.active { background: var(--accent); color: #030712; border-color: var(--accent); }
+
 @media(max-width:520px) {
   .stats { grid-template-columns: 1fr; }
   .row { flex-direction: column; }
@@ -55,37 +133,40 @@ button.danger:hover { background: #fecaca; }
 </head>
 <body>
 <div class="app">
-  <h1>🧠 Knowledge Tracker AI</h1>
-  <p class="sub">Tulis 1 kalimat. AI yang rapikan dan kategorikan.</p>
+  <header>
+    <h1>🧠 Knowledge Map</h1>
+    <p class="sub">Tulis 1 kalimat. AI memetakan & merapikan otomatis.</p>
+  </header>
 
   <div class="card">
     <h2 id="form-title">Tambah Pembelajaran</h2>
     <input type="hidden" id="edit-id">
+    
     <label>Tanggal</label>
     <input id="date" type="date">
 
-    <label>Apa yang dipelajari?</label>
+    <label>Apa yang kamu pelajari hari ini?</label>
     <textarea id="note" placeholder='Contoh: Belajar print("Hello World") di Python atau baca Meditations tentang kontrol diri...'></textarea>
     
     <label>Tingkat Pemahaman</label>
     <select id="understanding">
-      <option value="1">1/5 · Baru tahu</option>
-      <option value="2">2/5 · Sedikit paham</option>
-      <option value="3" selected>3/5 · Cukup paham</option>
-      <option value="4">4/5 · Paham</option>
-      <option value="5">5/5 · Bisa menjelaskan</option>
+      <option value="1">1/5 · Baru Tahu</option>
+      <option value="2">2/5 · Sedikit Paham</option>
+      <option value="3" selected>3/5 · Cukup Paham</option>
+      <option value="4">4/5 · Sangat Paham</option>
+      <option value="5">5/5 · Bisa Menjelaskan</option>
     </select>
     
-    <div class="row" style="margin-top:16px">
+    <div class="row" style="margin-top:20px">
       <button onclick="saveEntry()" id="submit-btn">Simpan & Proses AI</button>
       <button class="secondary" onclick="resetForm()" id="cancel-btn" style="display:none">Batal</button>
     </div>
   </div>
 
   <div class="card">
-    <h2>Ringkasan Perkembangan</h2>
+    <h2>Perkembangan Topik</h2>
     <div class="stats">
-      <div class="stat"><div class="num" id="days">0</div><div class="small">Hari Belajar</div></div>
+      <div class="stat"><div class="num" id="days">0</div><div class="small">Hari Aktif</div></div>
       <div class="stat"><div class="num" id="total">0</div><div class="small">Total Catatan</div></div>
       <div class="stat"><div class="num" id="avg">0%</div><div class="small">Rata-rata Pemahaman</div></div>
     </div>
@@ -93,17 +174,16 @@ button.danger:hover { background: #fecaca; }
   </div>
 
   <div class="card">
-    <h2>Riwayat</h2>
+    <h2>Riwayat & Rangkuman</h2>
     <div id="filters" class="filter-bar"></div>
-    <div id="history" class="empty">Belum ada catatan.</div>
+    <div id="history" class="empty">Belum ada catatan. Tulis sesuatu di atas!</div>
   </div>
 
-  <!-- Pengaturan API Key lokal -->
-  <div class="card" style="border-style: dashed;">
+  <div class="card" style="border-style: dashed; opacity: 0.8;">
     <h2>⚙️ Pengaturan AI</h2>
-    <label>Gemini API Key (Tersimpan Lokal di HP)</label>
-    <input id="api-key" type="password" placeholder="Tempel AI Studio API Key di sini" onchange="saveApiKey()">
-    <p class="small" style="margin-top:6px;">Ambil API key gratis di <a href="https://aistudio.google.com/" target="_blank">aistudio.google.com</a>.</p>
+    <label>Gemini API Key (Tersimpan Lokal di Browser)</label>
+    <input id="api-key" type="password" placeholder="Tempel Gemini API Key di sini" onchange="saveApiKey()">
+    <p class="small" style="margin-top:8px;">Dapatkan API key gratis di <a href="https://aistudio.google.com/" target="_blank" style="color:var(--accent);">aistudio.google.com</a>.</p>
   </div>
 </div>
 
@@ -129,25 +209,25 @@ function persist() {
 
 async function analyzeWithAI(text) {
   const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  
   if (!apiKey) {
-    // Fallback jika belum isi API Key
+    alert("Isi Gemini API Key kamu dulu di bagian Pengaturan AI paling bawah!");
     return {
       topic: "Umum",
-      summary: "API Key Gemini belum diisi di Pengaturan AI."
+      summary: "API Key belum diisi."
     };
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const prompt = `Analisis catatan pembelajaran ringkas berikut: "${text}".
-  Berikan output DALAM FORMAT JSON SAJA (tanpa tanda markdown ```json) dengan struktur:
+  Berikan output DALAM FORMAT JSON SAJA dengan struktur persis:
   {
-    "topic": "Topik Utama singkat (misal: Coding, Filsafat, Sains, Agama, Bisnis, Ekonomi, Buku, dll)",
-    "summary": "Koreksi jika ada pemahaman keliru atau berikan rangkuman/penjelasan singkat 1-2 kalimat"
+    "topic": "Topik Utama singkat 1-2 kata (misal: Coding, Filsafat, Sains, Agama, Bisnis, Ekonomi, Buku, dll)",
+    "summary": "Rangkuman ringkas atau koreksi pemahaman jika ada yang keliru (1-2 kalimat)"
   }`;
 
   const payload = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { responseMimeType: "application/json" }
+    contents: [{ parts: [{ text: prompt }] }]
   };
 
   try {
@@ -156,14 +236,24 @@ async function analyzeWithAI(text) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+    
     const resData = await res.json();
-    const rawJson = resData.candidates[0].content.parts[0].text;
-    return JSON.parse(rawJson);
+
+    if (resData.error) {
+      alert("Error dari Gemini API: " + resData.error.message);
+      return { topic: "Error", summary: resData.error.message };
+    }
+
+    let rawText = resData.candidates[0].content.parts[0].text;
+    rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+    
+    return JSON.parse(rawText);
   } catch (err) {
     console.error(err);
+    alert("Gagal memproses AI: " + err.message);
     return {
       topic: "Lainnya",
-      summary: "Gagal memproses dengan AI. Periksa API Key kamu."
+      summary: "Terjadi kesalahan koneksi atau format data."
     };
   }
 }
@@ -226,7 +316,7 @@ function editEntry(id) {
 
   document.getElementById("form-title").textContent = "Edit Pembelajaran";
   document.getElementById("submit-btn").textContent = "Perbarui & Proses AI";
-  document.getElementById("cancel-btn").style.display = "inline-block";
+  document.getElementById("cancel-btn").style.display = "inline-flex";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -255,7 +345,7 @@ function esc(s) {
 }
 
 function label(n) {
-  return ["", "Baru tahu", "Sedikit paham", "Cukup paham", "Paham", "Bisa menjelaskan"][n] || "";
+  return ["", "Baru Tahu", "Sedikit Paham", "Cukup Paham", "Sangat Paham", "Bisa Menjelaskan"][n] || "";
 }
 
 function setFilter(cat) {
@@ -279,11 +369,11 @@ function render() {
 
   const topicsContainer = document.getElementById("topics");
   topicsContainer.innerHTML = Object.keys(groups).length ? 
-    "<h3 style='margin:20px 0 10px; font-size:15px'>Bidang yang berkembang</h3>" +
+    "<h3 style='margin:24px 0 12px; font-size:14px; color:var(--text-muted); text-transform:uppercase;'>Bidang yang Berkembang</h3>" +
     Object.entries(groups).sort((a, b) => b[1].length - a[1].length).map(([k, v]) => {
       const a = Math.round(v.reduce((s, x) => s + x.understanding, 0) / v.length / 5 * 100);
       return `<div class="topic">
-        <div class="topichead"><b>${esc(k)}</b><span>${v.length} catatan · ${a}%</span></div>
+        <div class="topichead"><b>${esc(k)}</b><span style="color:var(--text-muted);">${v.length} catatan · ${a}%</span></div>
         <div class="progress"><div class="bar" style="width:${a}%"></div></div>
       </div>`;
     }).join("") : "";
@@ -306,7 +396,7 @@ function render() {
 
   if (!data.length) {
     historyContainer.className = "empty";
-    historyContainer.textContent = "Belum ada catatan.";
+    historyContainer.textContent = "Belum ada catatan. Tulis sesuatu di atas!";
     return;
   }
 
@@ -322,8 +412,8 @@ function render() {
       <div class="meta">${esc(x.date)}</div>
       <span class="badge">${esc(x.topic)}</span>
       <div class="note">${esc(x.note)}</div>
-      ${x.summary ? `<div class="ai-summary">🤖 <b>Rangkuman AI:</b> ${esc(x.summary)}</div>` : ''}
-      <div class="small" style="margin-top:8px">Pemahaman: ${x.understanding}/5 · ${label(x.understanding)}</div>
+      ${x.summary ? `<div class="ai-summary">🤖 <b>AI Insight:</b> ${esc(x.summary)}</div>` : ''}
+      <div class="small" style="margin-top:10px;">Pemahaman: ${x.understanding}/5 · ${label(x.understanding)}</div>
       <div class="actions">
         <button class="secondary" onclick="editEntry(${x.id})">Edit</button>
         <button class="danger" onclick="del(${x.id})">Hapus</button>
