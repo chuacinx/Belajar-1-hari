@@ -464,26 +464,21 @@
     btnCancel.addEventListener('click', resetForm);
     filterTopic.addEventListener('change', renderLogs);
 
-    // AI API Call Function (Pollinations.ai)
+    // AI API Processing (Bebas CORS menggunakan Endpoint GET)
     async function processWithAI(text) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 Detik Timeout
 
-        const prompt = `Analisis teks catatan pembelajaran ini: "${text}". 
-        Ekstrak topik utamanya (1-3 kata) dan buatkan rangkuman/insight singkat (1-2 kalimat). 
-        Kembalikan HANYA format JSON persis seperti ini: {"topic": "Nama Topik", "summary": "Rangkuman singkat"}`;
+        // Menyusun prompt agar AI hanya membalas format JSON
+        const promptText = `Analisis catatan pembelajaran ini: "${text}". Tentukan topik utamanya (1-3 kata) dan buat rangkuman/koreksi singkat (1-2 kalimat). Balas HANYA teks JSON valid tanpa format markdown atau penjelasan lain dengan format persis: {"topic": "Nama Topik", "summary": "Rangkuman singkat"}`;
+        
+        // Memakai metode GET untuk melewati blokir CORS Vercel/Browser
+        const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(promptText)}?json=true`;
 
         try {
-            const response = await fetch('https://text.pollinations.ai/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                signal: controller.signal,
-                body: JSON.stringify({
-                    messages: [
-                        { role: 'system', content: 'Kamu adalah asisten pengolah data JSON otomatis. Keluarkan JSON valid tanpa markdown.' },
-                        { role: 'user', content: prompt }
-                    ]
-                })
+            const response = await fetch(targetUrl, {
+                method: 'GET',
+                signal: controller.signal
             });
 
             clearTimeout(timeoutId);
@@ -492,7 +487,7 @@
 
             const resultText = await response.text();
             
-            // Clean format markdown jika ada ```json ... ```
+            // Bersihkan format markdown backtick ```json jika disertakan oleh AI
             const cleanJsonText = resultText.replace(/```json|```/g, '').trim();
             const data = JSON.parse(cleanJsonText);
 
@@ -501,7 +496,7 @@
                 summary: data.summary || "Berhasil diproses."
             };
         } catch (err) {
-            console.warn('AI processing failed, using fallback:', err);
+            console.warn('AI processing error, using fallback:', err);
             return {
                 topic: "Umum",
                 summary: "Gagal memproses AI (koneksi terputus/timeout)."
@@ -525,7 +520,7 @@
         let aiResult = { topic: "Umum", summary: "Gagal memproses AI" };
 
         if (id) {
-            // Edit Mode: Gunakan data lama jika teks tidak berubah banyak
+            // Edit Mode: Gunakan data lama jika teks catatan tidak berubah
             const existingNote = notes.find(n => n.id == id);
             if (existingNote && existingNote.note === noteText) {
                 aiResult = { topic: existingNote.topic, summary: existingNote.summary };
@@ -538,7 +533,7 @@
         }
 
         if (id) {
-            // Update
+            // Update Existing Note
             notes = notes.map(n => n.id == id ? {
                 ...n,
                 date,
@@ -549,7 +544,7 @@
             } : n);
             showToast('Catatan berhasil diperbarui!');
         } else {
-            // New Entry
+            // Add New Entry
             const newEntry = {
                 id: Date.now(),
                 date,
@@ -623,11 +618,11 @@
     function renderStats() {
         document.getElementById('stat-total').textContent = notes.length;
         
-        // Count unique active days
+        // Hitung total hari unik yang aktif
         const activeDays = new Set(notes.map(n => n.date)).size;
         document.getElementById('stat-days').textContent = activeDays;
 
-        // Calculate average understanding
+        // Hitung rata-rata tingkat pemahaman
         if (notes.length === 0) {
             document.getElementById('stat-rating').textContent = "0 / 5";
             return;
@@ -644,11 +639,11 @@
             return;
         }
 
-        // Hitung frekuensi topik
+        // Hitung frekuensi per topik
         const counts = {};
         notes.forEach(n => counts[n.topic] = (counts[n.topic] || 0) + 1);
 
-        // Sort Top 4 Topic
+        // Ambil Top 4 Topik terbanyak
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
 
         container.innerHTML = sorted.map(([topic, count]) => {
