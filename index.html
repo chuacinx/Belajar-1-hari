@@ -3,736 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Map AI - Gemini Powered</title>
+    <title>Personal Knowledge Map AI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --bg-color: #090d16;
             --card-bg: rgba(16, 22, 36, 0.7);
             --card-border: rgba(255, 255, 255, 0.08);
             --accent: #10b981;
-            --accent-hover: #059669;
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
-            --danger: #ef4444;
-            --warning: #f59e0b;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 24px; }
+        header h1 { font-size: 1.5rem; color: var(--accent); }
+        
+        /* Grid Layout */
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(12px); border-radius: 12px; padding: 20px; }
+        
+        /* Knowledge Map Section */
+        .map-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+        .map-card { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; }
+        .map-card h4 { color: var(--accent); font-size: 0.95rem; margin-bottom: 6px; }
+        .map-card p { font-size: 0.8rem; color: var(--text-muted); }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--card-border);
-            padding-bottom: 16px;
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Dashboard Grid */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(12px);
-            border-radius: 12px;
-            padding: 20px;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .card:hover {
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        .stat-card h3 {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .stat-card .value {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        /* Layout Main */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-
-        @media (min-width: 768px) {
-            .main-content {
-                grid-template-columns: 350px 1fr;
-            }
-        }
-
-        /* Form Elements */
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        input, textarea, select {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--accent);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        button {
-            background: var(--accent);
-            color: #000;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        button:hover {
-            background: var(--accent-hover);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .btn-cancel {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--card-border);
-            margin-top: 8px;
-        }
-
-        .btn-cancel:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-        }
-
-        /* Progress Bar Section */
-        .topic-progress-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .progress-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-        }
-
-        .bar-bg {
-            background: rgba(255, 255, 255, 0.1);
-            height: 6px;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .bar-fill {
-            background: var(--accent);
-            height: 100%;
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        /* Log / History List */
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .logs-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .log-card {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .badge {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .log-date {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .log-text {
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        .ai-summary {
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 3px solid var(--accent);
-            padding: 8px 12px;
-            border-radius: 0 6px 6px 0;
-            font-size: 0.85rem;
-            color: #d1d5db;
-        }
-
-        .log-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 4px;
-            font-size: 0.8rem;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-action {
-            background: transparent;
-            color: var(--text-muted);
-            padding: 4px 8px;
-            font-size: 0.75rem;
-            border: 1px solid var(--card-border);
-        }
-
-        .btn-action:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-delete:hover {
-            color: var(--danger);
-            border-color: var(--danger);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* Toast Notification */
-        #toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--accent);
-            color: #000;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        #toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(0,0,0,0.3);
-            border-radius: 50%;
-            border-top-color: #000;
-            animation: spin 0.8s linear infinite;
-            margin-right: 6px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        /* Form & Inputs */
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        label { font-size: 0.85rem; color: var(--text-muted); }
+        input, textarea { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; color: #fff; outline: none; }
+        input:focus, textarea:focus { border-color: var(--accent); }
+        button { background: var(--accent); color: #000; font-weight: 700; border: none; border-radius: 8px; padding: 12px; cursor: pointer; width: 100%; }
+        
+        /* Timeline Feed */
+        .log-item { border-left: 3px solid var(--accent); background: rgba(255,255,255,0.02); padding: 12px; margin-bottom: 12px; border-radius: 0 8px 8px 0; }
+        .badge { background: rgba(16, 185, 129, 0.2); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .concept-tag { background: rgba(255,255,255,0.1); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-right: 4px; }
+        
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #000; padding: 10px 18px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity 0.3s; }
+        #toast.show { opacity: 1; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>🧠 Knowledge Map AI (Gemini)</h1>
+        <h1>🧠 Personal Knowledge Map AI</h1>
     </header>
 
-    <div class="dashboard">
-        <div class="card stat-card">
-            <h3>Total Catatan</h3>
-            <div class="value" id="stat-total">0</div>
-        </div>
-        <div class="card stat-card">
-            <h3>Hari Aktif</h3>
-            <div class="value" id="stat-days">0</div>
-        </div>
-        <div class="card stat-card">
-            <h3>Rata-Rata Pemahaman</h3>
-            <div class="value" id="stat-rating">0 / 5</div>
+    <div class="card">
+        <div class="form-group" style="margin:0;">
+            <label for="api-key">Gemini API Key (Tersimpan di local browser):</label>
+            <input type="password" id="api-key" placeholder="Masukkan Gemini API Key..." onchange="saveKey()">
         </div>
     </div>
 
-    <div class="main-content">
-        <div style="display: flex; flex-direction: column; gap: 24px;">
-            <div class="card">
-                <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Pengaturan AI</h2>
-                <div class="form-group">
-                    <label for="api-key">Gemini API Key</label>
-                    <input type="password" id="api-key" placeholder="Masukkan API Key Gemini...">
-                </div>
+    <div class="card">
+        <h3 style="margin-bottom: 12px;">Input Pembelajaran Hari Ini</h3>
+        <form id="knowledge-form">
+            <div class="form-group">
+                <textarea id="raw-note" rows="2" placeholder="Contoh: Baca Meditations tentang membedakan hal yang bisa dan tidak bisa dikendalikan." required></textarea>
             </div>
+            <button type="submit" id="btn-submit">Proses & Petakan Pengetahuan</button>
+        </form>
+    </div>
 
-            <div class="card">
-                <h2 style="font-size: 1.1rem; margin-bottom: 16px;" id="form-title">Tambah Pembelajaran</h2>
-                <form id="note-form">
-                    <input type="hidden" id="edit-id">
-                    
-                    <div class="form-group">
-                        <label for="date">Tanggal</label>
-                        <input type="date" id="date" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="note">Apa yang kamu pelajari? (1-2 kalimat)</label>
-                        <textarea id="note" placeholder="Contoh: Belajar Python print statement untuk mencetak output ke terminal." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="understanding">Tingkat Pemahaman (1-5)</label>
-                        <select id="understanding" required>
-                            <option value="1">1 - Kurang Paham</option>
-                            <option value="2">2 - Agak Paham</option>
-                            <option value="3" selected>3 - Cukup Paham</option>
-                            <option value="4">4 - Paham</option>
-                            <option value="5">5 - Sangat Menguasai</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" id="btn-submit">Simpan & Analisis AI</button>
-                    <button type="button" class="btn-cancel" id="btn-cancel" style="display: none;">Batal Edit</button>
-                </form>
+    <div class="card">
+        <h3>🗺️ KNOWLEDGE MAP PRIBADI</h3>
+        <div class="map-grid" id="knowledge-map">
             </div>
+    </div>
 
-            <div class="card">
-                <h2 style="font-size: 1.1rem;">Topik Terpopuler</h2>
-                <div class="topic-progress-list" id="topic-progress">
-                    <div class="empty-state" style="padding: 10px 0;">Belum ada data topik.</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="history-header">
-                <h2 style="font-size: 1.1rem;">Riwayat Pembelajaran</h2>
-                <select id="filter-topic" style="padding: 6px 12px; font-size: 0.85rem;">
-                    <option value="ALL">Semua Topik</option>
-                </select>
-            </div>
-
-            <div class="logs-list" id="logs-container">
-                </div>
-        </div>
+    <div class="card">
+        <h3>📚 Jurnal Catatan & Insight</h3>
+        <div id="logs-container" style="margin-top: 12px;"></div>
     </div>
 </div>
 
 <div id="toast">Notifikasi</div>
 
 <script>
-    // State Aplikasi
-    let notes = JSON.parse(localStorage.getItem('km_notes')) || [];
-
-    // DOM Elements
-    const form = document.getElementById('note-form');
-    const inputId = document.getElementById('edit-id');
-    const inputDate = document.getElementById('date');
-    const inputNote = document.getElementById('note');
-    const inputUnderstanding = document.getElementById('understanding');
-    const inputApiKey = document.getElementById('api-key');
-    const btnSubmit = document.getElementById('btn-submit');
-    const btnCancel = document.getElementById('btn-cancel');
-    const formTitle = document.getElementById('form-title');
-    const logsContainer = document.getElementById('logs-container');
-    const filterTopic = document.getElementById('filter-topic');
-
-    // Load API Key dari LocalStorage jika ada
-    inputApiKey.value = localStorage.getItem('km_gemini_key') || '';
-    inputApiKey.addEventListener('change', () => {
-        localStorage.setItem('km_gemini_key', inputApiKey.value.trim());
+    let db = JSON.parse(localStorage.getItem('my_knowledge_db')) || [];
+    const apiKeyInput = document.getElementById('api-key');
+    
+    apiKeyInput.value = localStorage.getItem('km_gemini_key') || '';
+    function saveKey() {
+        localStorage.setItem('km_gemini_key', apiKeyInput.value.trim());
         showToast('API Key tersimpan!');
-    });
+    }
 
-    // Default Date to Today
-    inputDate.value = new Date().toISOString().split('T')[0];
-
-    document.addEventListener('DOMContentLoaded', () => {
-        renderApp();
-    });
-
-    form.addEventListener('submit', async (e) => {
+    document.getElementById('knowledge-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        await saveNote();
-    });
+        const noteText = document.getElementById('raw-note').value.trim();
+        const apiKey = apiKeyInput.value.trim();
 
-    inputNote.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            form.requestSubmit();
-        }
-    });
+        if(!apiKey) return alert('Masukkan Gemini API Key dulu!');
 
-    btnCancel.addEventListener('click', resetForm);
-    filterTopic.addEventListener('change', renderLogs);
-
-    // Integrasi Gemini API Menggunakan REST Endpoint
-    async function processWithAI(text) {
-        const apiKey = inputApiKey.value.trim();
-
-        if (!apiKey) {
-            showToast('Gemini API Key belum dimasukkan!');
-            return {
-                topic: "Umum",
-                summary: "API Key Gemini belum terpasang."
-            };
-        }
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-        const prompt = `Analisis catatan pembelajaran ini: "${text}". 
-        Tentukan topik utamanya (1-3 kata) dan buat rangkuman/insight singkat (1-2 kalimat).
-        Respons HARUS berbentuk JSON murni tanpa awalan markdown seperti \`\`\`json:
-        {"topic": "Nama Topik", "summary": "Rangkuman singkat"}`;
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.textContent = 'Menganalisis & Mengkategorikan...';
 
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                signal: controller.signal,
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }],
-                    generationConfig: {
-                        responseMimeType: "application/json"
-                    }
-                })
-            });
-
-            clearTimeout(timeoutId);
-
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-
-            const data = await response.json();
-            const textResponse = data.candidates[0].content.parts[0].text;
+            const aiResult = await processWithGemini(noteText, apiKey);
             
-            const parsed = JSON.parse(textResponse);
-
-            return {
-                topic: parsed.topic || "Umum",
-                summary: parsed.summary || "Berhasil diproses oleh Gemini AI."
-            };
-        } catch (err) {
-            console.warn('Gemini API Error, using fallback:', err);
-            return {
-                topic: "Umum",
-                summary: "Gagal memproses AI (koneksi terputus/API Key tidak valid)."
-            };
-        }
-    }
-
-    async function saveNote() {
-        const id = inputId.value;
-        const date = inputDate.value;
-        const noteText = inputNote.value.trim();
-        const understanding = parseInt(inputUnderstanding.value);
-
-        if (!noteText) return;
-
-        btnSubmit.disabled = true;
-        btnSubmit.innerHTML = `<span class="loading-spinner"></span> Menganalisis via Gemini...`;
-
-        let aiResult = { topic: "Umum", summary: "Gagal memproses AI" };
-
-        if (id) {
-            const existingNote = notes.find(n => n.id == id);
-            if (existingNote && existingNote.note === noteText) {
-                aiResult = { topic: existingNote.topic, summary: existingNote.summary };
-            } else {
-                aiResult = await processWithAI(noteText);
-            }
-        } else {
-            aiResult = await processWithAI(noteText);
-        }
-
-        if (id) {
-            notes = notes.map(n => n.id == id ? {
-                ...n,
-                date,
-                note: noteText,
-                understanding,
-                topic: aiResult.topic,
-                summary: aiResult.summary
-            } : n);
-            showToast('Catatan berhasil diperbarui!');
-        } else {
             const newEntry = {
                 id: Date.now(),
-                date,
-                note: noteText,
-                topic: aiResult.topic,
-                summary: aiResult.summary,
-                understanding,
-                createdAt: Date.now()
+                date: new Date().toLocaleDateString('id-ID'),
+                raw: noteText,
+                category: aiResult.category,
+                concepts: aiResult.concepts,
+                summary: aiResult.summary
             };
-            notes.unshift(newEntry);
-            showToast('Catatan baru disimpan!');
+
+            db.unshift(newEntry);
+            localStorage.setItem('my_knowledge_db', JSON.stringify(db));
+            
+            document.getElementById('raw-note').value = '';
+            showToast('Pengetahuan baru berhasil dipetakan!');
+            renderAll();
+        } catch (err) {
+            alert('Gagal memproses AI: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Proses & Petakan Pengetahuan';
         }
+    });
 
-        saveToLocalStorage();
-        resetForm();
-        renderApp();
+    async function processWithGemini(text, key) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+        
+        // Ambil daftar kategori yang sudah ada untuk konteks
+        const existingCategories = Array.from(new Set(db.map(d => d.category))).join(', ');
+
+        const prompt = `Lu adalah sistem Knowledge Graph pribadi. Analisis input catatan harian ini: "${text}".
+        Kategori saat ini yang sudah ada: [${existingCategories}].
+        Aturan:
+        1. Identifikasi Kategori utama (Boleh pakai yang sudah ada, atau buat kategori baru jika bidangnya beda).
+        2. Ekstrak 1-3 Konsep Utama (misal: Dikotomi Kendali, Amor Fati).
+        3. Buatkan rangkuman/koreksi pemahaman singkat (1 kalimat).
+        
+        Kembalikan HANYA JSON murni:
+        {
+            "category": "Nama Kategori",
+            "concepts": ["Konsep1", "Konsep2"],
+            "summary": "Rangkuman singkat"
+        }`;
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json" }
+            })
+        });
+
+        if(!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        return JSON.parse(data.candidates[0].content.parts[0].text);
     }
 
-    function deleteNote(id) {
-        if (confirm('Apakah Anda yakin ingin menghapus catatan ini?')) {
-            notes = notes.filter(n => n.id !== id);
-            saveToLocalStorage();
-            renderApp();
-            showToast('Catatan dihapus.');
-        }
-    }
-
-    function startEdit(id) {
-        const item = notes.find(n => n.id === id);
-        if (!item) return;
-
-        inputId.value = item.id;
-        inputDate.value = item.date;
-        inputNote.value = item.note;
-        inputUnderstanding.value = item.understanding;
-
-        formTitle.textContent = "Edit Catatan";
-        btnSubmit.textContent = "Perbarui Catatan";
-        btnCancel.style.display = "block";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function resetForm() {
-        inputId.value = '';
-        inputNote.value = '';
-        inputUnderstanding.value = '3';
-        inputDate.value = new Date().toISOString().split('T')[0];
-        formTitle.textContent = "Tambah Pembelajaran";
-        btnSubmit.textContent = "Simpan & Analisis AI";
-        btnSubmit.disabled = false;
-        btnCancel.style.display = "none";
-    }
-
-    function saveToLocalStorage() {
-        localStorage.setItem('km_notes', JSON.stringify(notes));
-    }
-
-    function renderApp() {
-        renderStats();
-        renderTopicsFilter();
-        renderProgressBars();
+    function renderAll() {
+        renderMap();
         renderLogs();
     }
 
-    function renderStats() {
-        document.getElementById('stat-total').textContent = notes.length;
-        const activeDays = new Set(notes.map(n => n.date)).size;
-        document.getElementById('stat-days').textContent = activeDays;
-
-        if (notes.length === 0) {
-            document.getElementById('stat-rating').textContent = "0 / 5";
-            return;
-        }
-        const avg = (notes.reduce((acc, curr) => acc + curr.understanding, 0) / notes.length).toFixed(1);
-        document.getElementById('stat-rating').textContent = `${avg} / 5`;
-    }
-
-    function renderProgressBars() {
-        const container = document.getElementById('topic-progress');
-        if (notes.length === 0) {
-            container.innerHTML = '<div class="empty-state" style="padding:10px 0;">Belum ada data topik.</div>';
+    function renderMap() {
+        const mapContainer = document.getElementById('knowledge-map');
+        if(db.length === 0) {
+            mapContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">Belum ada pengetahuan yang dipetakan.</p>';
             return;
         }
 
-        const counts = {};
-        notes.forEach(n => counts[n.topic] = (counts[n.topic] || 0) + 1);
+        // Grouping berdasarkan Kategori
+        const categories = {};
+        db.forEach(item => {
+            if(!categories[item.category]) categories[item.category] = [];
+            categories[item.category].push(...item.concepts);
+        });
 
-        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
-
-        container.innerHTML = sorted.map(([topic, count]) => {
-            const percentage = Math.round((count / notes.length) * 100);
+        mapContainer.innerHTML = Object.entries(categories).map(([cat, concepts]) => {
+            const uniqueConcepts = Array.from(new Set(concepts)).join(', ');
+            const count = db.filter(d => d.category === cat).length;
             return `
-                <div class="progress-item">
-                    <div class="progress-info">
-                        <span>${escapeHtml(topic)}</span>
-                        <span style="color: var(--text-muted);">${count} log (${percentage}%)</span>
-                    </div>
-                    <div class="bar-bg">
-                        <div class="bar-fill" style="width: ${percentage}%"></div>
-                    </div>
+                <div class="map-card">
+                    <h4>${escapeHtml(cat)}</h4>
+                    <p><strong>${count} Materi</strong> dipelajari</p>
+                    <p style="margin-top:4px; font-size:0.75rem;">Konsep: ${escapeHtml(uniqueConcepts)}</p>
                 </div>
             `;
         }).join('');
     }
 
-    function renderTopicsFilter() {
-        const selected = filterTopic.value;
-        const topics = Array.from(new Set(notes.map(n => n.topic)));
-        
-        filterTopic.innerHTML = '<option value="ALL">Semua Topik</option>' + 
-            topics.map(t => `<option value="${escapeHtml(t)}"${selected === t ? ' selected' : ''}>${escapeHtml(t)}</option>`).join('');
-    }
-
     function renderLogs() {
-        const filter = filterTopic.value;
-        const filteredNotes = filter === 'ALL' ? notes : notes.filter(n => n.topic === filter);
-
-        if (filteredNotes.length === 0) {
-            logsContainer.innerHTML = '<div class="empty-state">Belum ada riwayat pembelajaran tercatat.</div>';
+        const logsContainer = document.getElementById('logs-container');
+        if(db.length === 0) {
+            logsContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">Belum ada riwayat.</p>';
             return;
         }
 
-        logsContainer.innerHTML = filteredNotes.map(item => `
-            <div class="log-card card">
-                <div class="log-header">
-                    <span class="badge">${escapeHtml(item.topic)}</span>
-                    <span class="log-date">${item.date}</span>
+        logsContainer.innerHTML = db.map(item => `
+            <div class="log-item">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span class="badge">${escapeHtml(item.category)}</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">${item.date}</span>
                 </div>
-                <div class="log-text">${escapeHtml(item.note)}</div>
-                <div class="ai-summary">
-                    <strong>Gemini Insight:</strong> ${escapeHtml(item.summary)}
+                <p style="font-size:0.9rem; margin-bottom:6px;">"${escapeHtml(item.raw)}"</p>
+                <div style="margin-bottom:6px;">
+                    ${item.concepts.map(c => `<span class="concept-tag">${escapeHtml(c)}</span>`).join('')}
                 </div>
-                <div class="log-footer">
-                    <div>Pemahaman: <span style="color: var(--accent); font-weight:600;">${item.understanding}/5</span></div>
-                    <div class="actions">
-                        <button class="btn-action" onclick="startEdit(${item.id})">Edit</button>
-                        <button class="btn-action btn-delete" onclick="deleteNote(${item.id})">Hapus</button>
-                    </div>
-                </div>
+                <p style="font-size:0.8rem; color:var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); padding-top:4px;">
+                    💡 <em>${escapeHtml(item.summary)}</em>
+                </p>
             </div>
         `).join('');
     }
 
-    function showToast(message) {
+    function showToast(msg) {
         const toast = document.getElementById('toast');
-        toast.textContent = message;
+        toast.textContent = msg;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function escapeHtml(str) {
-        return String(str)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+        return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
-</script>
 
+    renderAll();
+</script>
 </body>
 </html>
