@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Map AI</title>
+    <title>Knowledge Map AI - Gemini Powered</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -349,7 +349,7 @@
 
 <div class="container">
     <header>
-        <h1>🧠 Knowledge Map AI</h1>
+        <h1>🧠 Knowledge Map AI (Gemini)</h1>
     </header>
 
     <div class="dashboard">
@@ -370,6 +370,14 @@
     <div class="main-content">
         <div style="display: flex; flex-direction: column; gap: 24px;">
             <div class="card">
+                <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Pengaturan AI</h2>
+                <div class="form-group">
+                    <label for="api-key">Gemini API Key</label>
+                    <input type="password" id="api-key" placeholder="Masukkan API Key Gemini...">
+                </div>
+            </div>
+
+            <div class="card">
                 <h2 style="font-size: 1.1rem; margin-bottom: 16px;" id="form-title">Tambah Pembelajaran</h2>
                 <form id="note-form">
                     <input type="hidden" id="edit-id">
@@ -381,7 +389,7 @@
 
                     <div class="form-group">
                         <label for="note">Apa yang kamu pelajari? (1-2 kalimat)</label>
-                        <textarea id="note" placeholder="Contoh: Hari ini belajar Async/Await di JS untuk menangani API request secara asinkron." required></textarea>
+                        <textarea id="note" placeholder="Contoh: Belajar Python print statement untuk mencetak output ke terminal." required></textarea>
                     </div>
 
                     <div class="form-group">
@@ -434,21 +442,27 @@
     const inputDate = document.getElementById('date');
     const inputNote = document.getElementById('note');
     const inputUnderstanding = document.getElementById('understanding');
+    const inputApiKey = document.getElementById('api-key');
     const btnSubmit = document.getElementById('btn-submit');
     const btnCancel = document.getElementById('btn-cancel');
     const formTitle = document.getElementById('form-title');
     const logsContainer = document.getElementById('logs-container');
     const filterTopic = document.getElementById('filter-topic');
 
+    // Load API Key dari LocalStorage jika ada
+    inputApiKey.value = localStorage.getItem('km_gemini_key') || '';
+    inputApiKey.addEventListener('change', () => {
+        localStorage.setItem('km_gemini_key', inputApiKey.value.trim());
+        showToast('API Key tersimpan!');
+    });
+
     // Default Date to Today
     inputDate.value = new Date().toISOString().split('T')[0];
 
-    // Initialize App
     document.addEventListener('DOMContentLoaded', () => {
         renderApp();
     });
 
-    // Event: Form Submit (Ctrl+Enter atau Klik)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         await saveNote();
@@ -464,47 +478,67 @@
     btnCancel.addEventListener('click', resetForm);
     filterTopic.addEventListener('change', renderLogs);
 
-    // AI API Processing (Bebas CORS menggunakan Endpoint GET)
+    // Integrasi Gemini API Menggunakan REST Endpoint
     async function processWithAI(text) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 Detik Timeout
+        const apiKey = inputApiKey.value.trim();
 
-        // Menyusun prompt agar AI hanya membalas format JSON
-        const promptText = `Analisis catatan pembelajaran ini: "${text}". Tentukan topik utamanya (1-3 kata) dan buat rangkuman/koreksi singkat (1-2 kalimat). Balas HANYA teks JSON valid tanpa format markdown atau penjelasan lain dengan format persis: {"topic": "Nama Topik", "summary": "Rangkuman singkat"}`;
-        
-        // Memakai metode GET untuk melewati blokir CORS Vercel/Browser
-        const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(promptText)}?json=true`;
+        if (!apiKey) {
+            showToast('Gemini API Key belum dimasukkan!');
+            return {
+                topic: "Umum",
+                summary: "API Key Gemini belum terpasang."
+            };
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+        const prompt = `Analisis catatan pembelajaran ini: "${text}". 
+        Tentukan topik utamanya (1-3 kata) dan buat rangkuman/insight singkat (1-2 kalimat).
+        Respons HARUS berbentuk JSON murni tanpa awalan markdown seperti \`\`\`json:
+        {"topic": "Nama Topik", "summary": "Rangkuman singkat"}`;
 
         try {
-            const response = await fetch(targetUrl, {
-                method: 'GET',
-                signal: controller.signal
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                signal: controller.signal,
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                })
             });
 
             clearTimeout(timeoutId);
 
-            if (!response.ok) throw new Error('API Error');
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
-            const resultText = await response.text();
+            const data = await response.json();
+            const textResponse = data.candidates[0].content.parts[0].text;
             
-            // Bersihkan format markdown backtick ```json jika disertakan oleh AI
-            const cleanJsonText = resultText.replace(/```json|```/g, '').trim();
-            const data = JSON.parse(cleanJsonText);
+            const parsed = JSON.parse(textResponse);
 
             return {
-                topic: data.topic || "Umum",
-                summary: data.summary || "Berhasil diproses."
+                topic: parsed.topic || "Umum",
+                summary: parsed.summary || "Berhasil diproses oleh Gemini AI."
             };
         } catch (err) {
-            console.warn('AI processing error, using fallback:', err);
+            console.warn('Gemini API Error, using fallback:', err);
             return {
                 topic: "Umum",
-                summary: "Gagal memproses AI (koneksi terputus/timeout)."
+                summary: "Gagal memproses AI (koneksi terputus/API Key tidak valid)."
             };
         }
     }
 
-    // Save or Update Note
     async function saveNote() {
         const id = inputId.value;
         const date = inputDate.value;
@@ -513,14 +547,12 @@
 
         if (!noteText) return;
 
-        // UI Loading State
         btnSubmit.disabled = true;
-        btnSubmit.innerHTML = `<span class="loading-spinner"></span> Menganalisis...`;
+        btnSubmit.innerHTML = `<span class="loading-spinner"></span> Menganalisis via Gemini...`;
 
         let aiResult = { topic: "Umum", summary: "Gagal memproses AI" };
 
         if (id) {
-            // Edit Mode: Gunakan data lama jika teks catatan tidak berubah
             const existingNote = notes.find(n => n.id == id);
             if (existingNote && existingNote.note === noteText) {
                 aiResult = { topic: existingNote.topic, summary: existingNote.summary };
@@ -528,12 +560,10 @@
                 aiResult = await processWithAI(noteText);
             }
         } else {
-            // Create Mode: Panggil AI
             aiResult = await processWithAI(noteText);
         }
 
         if (id) {
-            // Update Existing Note
             notes = notes.map(n => n.id == id ? {
                 ...n,
                 date,
@@ -544,7 +574,6 @@
             } : n);
             showToast('Catatan berhasil diperbarui!');
         } else {
-            // Add New Entry
             const newEntry = {
                 id: Date.now(),
                 date,
@@ -555,7 +584,7 @@
                 createdAt: Date.now()
             };
             notes.unshift(newEntry);
-            showToast('Catatan baru berhasil ditambahkan!');
+            showToast('Catatan baru disimpan!');
         }
 
         saveToLocalStorage();
@@ -563,7 +592,6 @@
         renderApp();
     }
 
-    // Delete Note
     function deleteNote(id) {
         if (confirm('Apakah Anda yakin ingin menghapus catatan ini?')) {
             notes = notes.filter(n => n.id !== id);
@@ -573,7 +601,6 @@
         }
     }
 
-    // Edit Note Mode
     function startEdit(id) {
         const item = notes.find(n => n.id === id);
         if (!item) return;
@@ -589,7 +616,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Reset Form
     function resetForm() {
         inputId.value = '';
         inputNote.value = '';
@@ -601,12 +627,10 @@
         btnCancel.style.display = "none";
     }
 
-    // Save to LocalStorage
     function saveToLocalStorage() {
         localStorage.setItem('km_notes', JSON.stringify(notes));
     }
 
-    // Render All Views
     function renderApp() {
         renderStats();
         renderTopicsFilter();
@@ -614,15 +638,11 @@
         renderLogs();
     }
 
-    // Render Stats
     function renderStats() {
         document.getElementById('stat-total').textContent = notes.length;
-        
-        // Hitung total hari unik yang aktif
         const activeDays = new Set(notes.map(n => n.date)).size;
         document.getElementById('stat-days').textContent = activeDays;
 
-        // Hitung rata-rata tingkat pemahaman
         if (notes.length === 0) {
             document.getElementById('stat-rating').textContent = "0 / 5";
             return;
@@ -631,7 +651,6 @@
         document.getElementById('stat-rating').textContent = `${avg} / 5`;
     }
 
-    // Render Topic Progress Bars
     function renderProgressBars() {
         const container = document.getElementById('topic-progress');
         if (notes.length === 0) {
@@ -639,11 +658,9 @@
             return;
         }
 
-        // Hitung frekuensi per topik
         const counts = {};
         notes.forEach(n => counts[n.topic] = (counts[n.topic] || 0) + 1);
 
-        // Ambil Top 4 Topik terbanyak
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
 
         container.innerHTML = sorted.map(([topic, count]) => {
@@ -662,7 +679,6 @@
         }).join('');
     }
 
-    // Populate Filter Select Options
     function renderTopicsFilter() {
         const selected = filterTopic.value;
         const topics = Array.from(new Set(notes.map(n => n.topic)));
@@ -671,7 +687,6 @@
             topics.map(t => `<option value="${escapeHtml(t)}"${selected === t ? ' selected' : ''}>${escapeHtml(t)}</option>`).join('');
     }
 
-    // Render History Logs
     function renderLogs() {
         const filter = filterTopic.value;
         const filteredNotes = filter === 'ALL' ? notes : notes.filter(n => n.topic === filter);
@@ -689,7 +704,7 @@
                 </div>
                 <div class="log-text">${escapeHtml(item.note)}</div>
                 <div class="ai-summary">
-                    <strong>AI Insight:</strong> ${escapeHtml(item.summary)}
+                    <strong>Gemini Insight:</strong> ${escapeHtml(item.summary)}
                 </div>
                 <div class="log-footer">
                     <div>Pemahaman: <span style="color: var(--accent); font-weight:600;">${item.understanding}/5</span></div>
@@ -702,7 +717,6 @@
         `).join('');
     }
 
-    // Helper: Toast
     function showToast(message) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
@@ -710,7 +724,6 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // Helper: Anti-XSS Sanitization
     function escapeHtml(str) {
         return String(str)
             .replace(/&/g, "&amp;")
