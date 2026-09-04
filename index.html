@@ -1,428 +1,822 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Map AI</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #090d16;
-  --card-bg: rgba(17, 24, 39, 0.7);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --accent: #10b981;
-  --accent-glow: rgba(16, 185, 129, 0.15);
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  --input-bg: #030712;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Knowledge Map AI — Pro & Simpel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #10b981;
+      --accent-strong: #059669;
+      --accent-glow: rgba(16, 185, 129, 0.2);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --input-bg: #020617;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --shadow: 0 18px 35px -12px rgba(0, 0, 0, 0.6);
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-* { box-sizing: border-box; }
-body { 
-  margin: 0; 
-  font-family: 'Plus Jakarta Sans', sans-serif; 
-  background-color: var(--bg); 
-  color: var(--text-main); 
-  line-height: 1.6;
-  background-image: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
-  background-attachment: fixed;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-.app { max-width: 780px; margin: auto; padding: 24px 16px 40px; }
-h1, h2, h3, p { margin-top: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.55;
+      background-image: 
+        radial-gradient(circle at 10% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.04) 0%, transparent 40%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      padding: 18px 12px 40px;
+    }
 
-header { margin-bottom: 24px; text-align: left; }
-h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; color: #fff; margin-bottom: 4px; }
-.sub { color: var(--text-muted); font-size: 14px; font-weight: 400; }
+    .app {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-.card { 
-  background: var(--card-bg); 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--card-border); 
-  border-radius: 20px; 
-  padding: 24px; 
-  margin-bottom: 20px; 
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-}
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px 4px 8px;
+    }
 
-h2 { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); margin-bottom: 18px; }
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: white;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 6px; }
-label:first-of-type { margin-top: 0; }
+    .sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding-left: 4px;
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+    }
 
-input, textarea, select { 
-  width: 100%; 
-  border: 1px solid var(--card-border); 
-  border-radius: 12px; 
-  padding: 14px; 
-  font: inherit; 
-  font-size: 14px;
-  background: var(--input-bg); 
-  color: #fff; 
-  transition: all 0.2s ease; 
-}
-input:focus, textarea:focus, select:focus { 
-  outline: none; 
-  border-color: var(--accent); 
-  box-shadow: 0 0 0 3px var(--accent-glow);
-}
-textarea { min-height: 100px; resize: vertical; }
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      box-shadow: var(--shadow);
+      transition: border-color var(--transition);
+    }
 
-button { 
-  border: 0; 
-  border-radius: 12px; 
-  padding: 14px 20px; 
-  font-weight: 700; 
-  font-size: 14px; 
-  cursor: pointer; 
-  background: var(--accent); 
-  color: #030712; 
-  transition: all 0.2s ease; 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-button:hover { opacity: 0.9; transform: translateY(-1px); }
-button:active { transform: translateY(0); }
-button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
 
-button.secondary { background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid var(--card-border); }
-button.secondary:hover { background: rgba(255, 255, 255, 0.1); }
-button.danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2); }
-button.danger:hover { background: rgba(239, 68, 68, 0.25); }
+    h2 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-.row { display: flex; gap: 12px; }
-.row > * { flex: 1; }
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin: 16px 0 6px;
+    }
 
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.stat { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; text-align: center; }
-.num { font-size: 26px; font-weight: 800; color: #fff; }
-.small { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    label:first-of-type {
+      margin-top: 0;
+    }
 
-.entry { border-top: 1px solid var(--card-border); padding: 20px 0; }
-.entry:first-child { border-top: 0; padding-top: 0; }
-.badge { display: inline-block; padding: 4px 12px; border-radius: 99px; background: var(--accent-glow); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-.meta { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-.note { color: #e5e7eb; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
-.ai-summary { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent); color: #d1fae5; padding: 12px 14px; border-radius: 0 10px 10px 0; font-size: 13px; margin-top: 12px; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: var(--input-bg);
+      color: white;
+      transition: var(--transition);
+      appearance: none;
+      -webkit-appearance: none;
+    }
 
-.actions { display: flex; gap: 8px; margin-top: 14px; }
-.actions button { padding: 8px 14px; font-size: 12px; }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+      background: #030712;
+    }
 
-.progress { height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 99px; overflow: hidden; margin-top: 8px; }
-.bar { height: 100%; background: var(--accent); border-radius: 99px; }
-.topic { margin-bottom: 14px; }
-.topichead { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.5;
+    }
 
-.empty { color: var(--text-muted); text-align: center; padding: 40px 16px; font-size: 14px; }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+    }
 
-.filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none; }
-.filter-bar::-webkit-scrollbar { display: none; }
-.filter-btn { padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: var(--text-muted); white-space: nowrap; border: 1px solid var(--card-border); cursor: pointer; transition: all 0.2s; }
-.filter-btn.active { background: var(--accent); color: #030712; border-color: var(--accent); }
+    button {
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 13px 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: var(--accent);
+      color: #030712;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      flex: 1;
+    }
 
-@media(max-width:520px) {
-  .stats { grid-template-columns: 1fr; }
-  .row { flex-direction: column; }
-}
-</style>
+    button:hover:not(:disabled) {
+      background: #0d9f6e;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px -10px rgba(16, 185, 129, 0.4);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+    .row > button {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 8px;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    /* Topics */
+    .topic-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .topic-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .topic-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+    }
+    .topic-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .progress {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 99px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.6s ease;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+    .filter-bar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .filter-bar::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 99px;
+    }
+    .filter-btn {
+      padding: 7px 16px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      white-space: nowrap;
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-btn.active {
+      background: var(--accent);
+      color: #030712;
+      border-color: var(--accent);
+    }
+
+    /* Entries */
+    .entry {
+      border-top: 1px solid var(--card-border);
+      padding: 20px 0;
+    }
+    .entry:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 99px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meta-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .note-text {
+      color: #f1f5f9;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 6px;
+    }
+    .ai-summary {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 3px solid var(--accent);
+      color: #d1fae5;
+      padding: 10px 14px;
+      border-radius: 0 10px 10px 0;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    .understanding-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .actions button {
+      padding: 7px 14px;
+      font-size: 0.75rem;
+      flex: 0 1 auto;
+      min-width: auto;
+    }
+
+    .empty-state {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 32px 16px;
+      font-size: 0.95rem;
+    }
+
+    /* API card */
+    .api-card {
+      border-style: dashed !important;
+      opacity: 0.9;
+    }
+    .api-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .row {
+        flex-direction: column;
+      }
+      .card {
+        padding: 18px 16px;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <h1>🧠 Knowledge Map</h1>
-    <p class="sub">Tulis 1 kalimat. AI memetakan & merapikan otomatis.</p>
-  </header>
+  <div class="app">
+    <!-- Header -->
+    <header>
+      <h1>🧠 Knowledge Map</h1>
+      <p class="sub">Tulis 1 kalimat, AI otomatis petakan & rapikan.</p>
+    </header>
 
-  <div class="card">
-    <h2 id="form-title">Tambah Pembelajaran</h2>
-    <input type="hidden" id="edit-id">
-    
-    <label>Tanggal</label>
-    <input id="date" type="date">
+    <!-- Form Card -->
+    <div class="card">
+      <h2 id="form-title">📝 Tambah Pembelajaran</h2>
+      <input type="hidden" id="edit-id">
 
-    <label>Apa yang kamu pelajari hari ini?</label>
-    <textarea id="note" placeholder='Contoh: Belajar print("Hello World") di Python atau baca Meditations tentang kontrol diri...'></textarea>
-    
-    <label>Tingkat Pemahaman</label>
-    <select id="understanding">
-      <option value="1">1/5 · Baru Tahu</option>
-      <option value="2">2/5 · Sedikit Paham</option>
-      <option value="3" selected>3/5 · Cukup Paham</option>
-      <option value="4">4/5 · Sangat Paham</option>
-      <option value="5">5/5 · Bisa Menjelaskan</option>
-    </select>
-    
-    <div class="row" style="margin-top:20px">
-      <button onclick="saveEntry()" id="submit-btn">Simpan & Proses AI</button>
-      <button class="secondary" onclick="resetForm()" id="cancel-btn" style="display:none">Batal</button>
-    </div>
-  </div>
+      <label for="date">Tanggal</label>
+      <input id="date" type="date" required>
 
-  <div class="card">
-    <h2>Perkembangan Topik</h2>
-    <div class="stats">
-      <div class="stat"><div class="num" id="days">0</div><div class="small">Hari Aktif</div></div>
-      <div class="stat"><div class="num" id="total">0</div><div class="small">Total Catatan</div></div>
-      <div class="stat"><div class="num" id="avg">0%</div><div class="small">Rata-rata Pemahaman</div></div>
-    </div>
-    <div id="topics"></div>
-  </div>
+      <label for="note">Apa yang kamu pelajari hari ini?</label>
+      <textarea id="note" placeholder='Contoh: Belajar print("Hello World") di Python atau baca Meditations tentang kontrol diri...' required></textarea>
 
-  <div class="card">
-    <h2>Riwayat & Rangkuman</h2>
-    <div id="filters" class="filter-bar"></div>
-    <div id="history" class="empty">Belum ada catatan. Tulis sesuatu di atas!</div>
-  </div>
+      <label for="understanding">Tingkat Pemahaman</label>
+      <select id="understanding">
+        <option value="1">1/5 · Baru Tahu</option>
+        <option value="2">2/5 · Sedikit Paham</option>
+        <option value="3" selected>3/5 · Cukup Paham</option>
+        <option value="4">4/5 · Sangat Paham</option>
+        <option value="5">5/5 · Bisa Menjelaskan</option>
+      </select>
 
-  <div class="card" style="border-style: dashed; opacity: 0.85;">
-    <h2>⚙️ Pengaturan AI</h2>
-    <label>Gemini API Key (Tersimpan Lokal di Browser)</label>
-    <input id="api-key" type="password" placeholder="Tempel Gemini API Key di sini" onchange="saveApiKey()">
-    <p class="small" style="margin-top:8px;">Dapatkan API key di <a href="https://aistudio.google.com/" target="_blank" style="color:var(--accent);">aistudio.google.com</a>.</p>
-  </div>
-</div>
-
-<script>
-const KEY = "knowledge_tracker_v1";
-const API_KEY_STORAGE = "gemini_api_key_v1";
-
-let data = JSON.parse(localStorage.getItem(KEY) || "[]");
-let activeFilter = "Semua";
-
-document.getElementById("date").value = new Date().toISOString().slice(0, 10);
-document.getElementById("api-key").value = localStorage.getItem(API_KEY_STORAGE) || "";
-
-function saveApiKey() {
-  const key = document.getElementById("api-key").value.trim();
-  localStorage.setItem(API_KEY_STORAGE, key);
-}
-
-function persist() {
-  localStorage.setItem(KEY, JSON.stringify(data));
-  render();
-}
-
-async function analyzeWithAI(text) {
-  const apiKey = localStorage.getItem(API_KEY_STORAGE);
-  
-  if (!apiKey) {
-    alert("Isi Gemini API Key kamu dulu di bagian Pengaturan AI paling bawah!");
-    return {
-      topic: "Umum",
-      summary: "API Key belum diisi."
-    };
-  }
-
-  // Model gemini-2.5-flash
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  const prompt = `Analisis catatan pembelajaran ringkas berikut: "${text}".
-  Berikan output DALAM FORMAT JSON SAJA dengan struktur persis:
-  {
-    "topic": "Topik Utama singkat 1-2 kata (misal: Coding, Filsafat, Sains, Agama, Bisnis, Ekonomi, Buku, dll)",
-    "summary": "Rangkuman ringkas atau koreksi pemahaman jika ada yang keliru (1-2 kalimat)"
-  }`;
-
-  const payload = {
-    contents: [{ parts: [{ text: prompt }] }]
-  };
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    
-    const resData = await res.json();
-
-    if (resData.error) {
-      alert("Error dari Gemini API: " + resData.error.message);
-      return { topic: "Error", summary: resData.error.message };
-    }
-
-    let rawText = resData.candidates[0].content.parts[0].text;
-    rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
-    
-    return JSON.parse(rawText);
-  } catch (err) {
-    console.error(err);
-    alert("Gagal memproses AI: " + err.message);
-    return {
-      topic: "Lainnya",
-      summary: "Terjadi kesalahan koneksi atau format data."
-    };
-  }
-}
-
-async function saveEntry() {
-  const editId = document.getElementById("edit-id").value;
-  const date = document.getElementById("date").value;
-  const note = document.getElementById("note").value.trim();
-  const understanding = +document.getElementById("understanding").value;
-  const submitBtn = document.getElementById("submit-btn");
-
-  if (!date || !note) {
-    alert("Tanggal dan isi catatan tidak boleh kosong.");
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Sedang Memproses AI...";
-
-  const aiResult = await analyzeWithAI(note);
-
-  if (editId) {
-    const index = data.findIndex(x => x.id === +editId);
-    if (index !== -1) {
-      data[index] = { 
-        id: +editId, 
-        date, 
-        topic: aiResult.topic || "Umum", 
-        note, 
-        summary: aiResult.summary || "",
-        understanding 
-      };
-    }
-  } else {
-    data.unshift({ 
-      id: Date.now(), 
-      date, 
-      topic: aiResult.topic || "Umum", 
-      note, 
-      summary: aiResult.summary || "",
-      understanding 
-    });
-  }
-
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Simpan & Proses AI";
-
-  resetForm();
-  persist();
-}
-
-function editEntry(id) {
-  const item = data.find(x => x.id === id);
-  if (!item) return;
-
-  document.getElementById("edit-id").value = item.id;
-  document.getElementById("date").value = item.date;
-  document.getElementById("note").value = item.note;
-  document.getElementById("understanding").value = item.understanding;
-
-  document.getElementById("form-title").textContent = "Edit Pembelajaran";
-  document.getElementById("submit-btn").textContent = "Perbarui & Proses AI";
-  document.getElementById("cancel-btn").style.display = "inline-flex";
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function resetForm() {
-  document.getElementById("edit-id").value = "";
-  document.getElementById("note").value = "";
-  document.getElementById("date").value = new Date().toISOString().slice(0, 10);
-  document.getElementById("understanding").value = 3;
-
-  document.getElementById("form-title").textContent = "Tambah Pembelajaran";
-  document.getElementById("submit-btn").textContent = "Simpan & Proses AI";
-  document.getElementById("cancel-btn").style.display = "none";
-}
-
-function del(id) {
-  if (confirm("Yakin ingin menghapus catatan ini?")) {
-    data = data.filter(x => x.id !== id);
-    persist();
-  }
-}
-
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-  }[c]));
-}
-
-function label(n) {
-  return ["", "Baru Tahu", "Sedikit Paham", "Cukup Paham", "Sangat Paham", "Bisa Menjelaskan"][n] || "";
-}
-
-function setFilter(cat) {
-  activeFilter = cat;
-  render();
-}
-
-function render() {
-  const days = new Set(data.map(x => x.date)).size;
-  const avg = data.length ? Math.round(data.reduce((a, x) => a + x.understanding, 0) / data.length / 5 * 100) : 0;
-  
-  document.getElementById("days").textContent = days;
-  document.getElementById("total").textContent = data.length;
-  document.getElementById("avg").textContent = avg + "%";
-
-  const groups = {};
-  data.forEach(x => {
-    if (!groups[x.topic]) groups[x.topic] = [];
-    groups[x.topic].push(x);
-  });
-
-  const topicsContainer = document.getElementById("topics");
-  topicsContainer.innerHTML = Object.keys(groups).length ? 
-    "<h3 style='margin:24px 0 12px; font-size:14px; color:var(--text-muted); text-transform:uppercase;'>Bidang yang Berkembang</h3>" +
-    Object.entries(groups).sort((a, b) => b[1].length - a[1].length).map(([k, v]) => {
-      const a = Math.round(v.reduce((s, x) => s + x.understanding, 0) / v.length / 5 * 100);
-      return `<div class="topic">
-        <div class="topichead"><b>${esc(k)}</b><span style="color:var(--text-muted);">${v.length} catatan · ${a}%</span></div>
-        <div class="progress"><div class="bar" style="width:${a}%"></div></div>
-      </div>`;
-    }).join("") : "";
-
-  // Render Filter
-  const filtersContainer = document.getElementById("filters");
-  const categories = ["Semua", ...Object.keys(groups)];
-  if (data.length && categories.length > 2) {
-    filtersContainer.style.display = "flex";
-    filtersContainer.innerHTML = categories.map(cat => 
-      `<button class="filter-btn ${activeFilter === cat ? 'active' : ''}" onclick="setFilter('${esc(cat)}')">${esc(cat)}</button>`
-    ).join("");
-  } else {
-    filtersContainer.style.display = "none";
-  }
-
-  // Render History
-  const historyContainer = document.getElementById("history");
-  const filteredData = activeFilter === "Semua" ? data : data.filter(x => x.topic === activeFilter);
-
-  if (!data.length) {
-    historyContainer.className = "empty";
-    historyContainer.textContent = "Belum ada catatan. Tulis sesuatu di atas!";
-    return;
-  }
-
-  if (!filteredData.length) {
-    historyContainer.className = "empty";
-    historyContainer.textContent = "Tidak ada catatan untuk topik ini.";
-    return;
-  }
-
-  historyContainer.className = "";
-  historyContainer.innerHTML = filteredData.map(x => `
-    <div class="entry">
-      <div class="meta">${esc(x.date)}</div>
-      <span class="badge">${esc(x.topic)}</span>
-      <div class="note">${esc(x.note)}</div>
-      ${x.summary ? `<div class="ai-summary">🤖 <b>AI Insight:</b> ${esc(x.summary)}</div>` : ''}
-      <div class="small" style="margin-top:10px;">Pemahaman: ${x.understanding}/5 · ${label(x.understanding)}</div>
-      <div class="actions">
-        <button class="secondary" onclick="editEntry(${x.id})">Edit</button>
-        <button class="danger" onclick="del(${x.id})">Hapus</button>
+      <div class="row">
+        <button id="submit-btn" onclick="saveEntry()">⚡ Simpan & Proses AI</button>
+        <button class="btn-secondary" id="cancel-btn" onclick="resetForm()" style="display:none;">Batal</button>
       </div>
-    </div>`).join("");
-}
+    </div>
 
-render();
-</script>
+    <!-- Stats & Topics Card -->
+    <div class="card">
+      <h2>📊 Perkembangan Topik</h2>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-number" id="days">0</div>
+          <div class="stat-label">Hari Aktif</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="total">0</div>
+          <div class="stat-label">Catatan</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="avg">0%</div>
+          <div class="stat-label">Pemahaman</div>
+        </div>
+      </div>
+      <div id="topics"></div>
+    </div>
+
+    <!-- History & Filter Card -->
+    <div class="card">
+      <h2>📚 Riwayat & Rangkuman AI</h2>
+      <div id="filters" class="filter-bar"></div>
+      <div id="history" class="empty-state">Belum ada catatan. Mulai tulis di atas!</div>
+    </div>
+
+    <!-- API Settings Card -->
+    <div class="card api-card">
+      <h2>⚙️ Pengaturan AI (Gemini)</h2>
+      <label for="api-key">Gemini API Key — tersimpan lokal di browser</label>
+      <input id="api-key" type="password" placeholder="Tempel Gemini API Key" onchange="saveApiKey()">
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">
+        Dapatkan key di <a class="api-link" href="https://aistudio.google.com/" target="_blank" rel="noopener">aistudio.google.com</a>. Model: gemini-2.5-flash.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ================== CONFIG & STORAGE ==================
+      const STORAGE_KEY = "knowledge_tracker_pro_v1";
+      const API_KEY_STORAGE = "gemini_api_key_v1";
+      const GEMINI_MODEL = "gemini-2.5-flash";  // atau "gemini-1.5-flash" 
+      const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+      // ================== STATE ==================
+      let data = [];
+      let activeFilter = "Semua";
+      let editingId = null;
+
+      // ================== DOM REFS ==================
+      const dateInput = document.getElementById('date');
+      const noteInput = document.getElementById('note');
+      const understandingSelect = document.getElementById('understanding');
+      const editIdInput = document.getElementById('edit-id');
+      const submitBtn = document.getElementById('submit-btn');
+      const cancelBtn = document.getElementById('cancel-btn');
+      const formTitle = document.getElementById('form-title');
+      const apiKeyInput = document.getElementById('api-key');
+
+      // ================== INIT ==================
+      function init() {
+        // Load data
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            data = JSON.parse(stored);
+            // sanitize old data jika perlu
+            if (!Array.isArray(data)) data = [];
+          } catch(e) { data = []; }
+        }
+
+        // Load API key
+        const savedKey = localStorage.getItem(API_KEY_STORAGE);
+        if (savedKey) apiKeyInput.value = savedKey;
+
+        // Set default date
+        dateInput.value = new Date().toISOString().slice(0,10);
+
+        render();
+      }
+
+      // ================== PERSISTENCE ==================
+      function persistData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        render();
+      }
+
+      function saveApiKey() {
+        const key = apiKeyInput.value.trim();
+        if (key) {
+          localStorage.setItem(API_KEY_STORAGE, key);
+        } else {
+          localStorage.removeItem(API_KEY_STORAGE);
+        }
+      }
+
+      // ================== AI ANALYSIS ==================
+      async function analyzeWithAI(text) {
+        const apiKey = localStorage.getItem(API_KEY_STORAGE);
+        if (!apiKey) {
+          alert('⚠️ Isi Gemini API Key dulu di bagian Pengaturan AI paling bawah.');
+          return {
+            topic: "Umum",
+            summary: "API Key belum diisi."
+          };
+        }
+
+        const prompt = `Analisis catatan pembelajaran ringkas ini: "${text}". 
+        Berikan output DALAM FORMAT JSON SAJA persis seperti ini:
+        {"topic":"Topik Utama 1-3 kata (misal: Coding, Filsafat, Sains, Bisnis, Buku, Agama, dll)","summary":"Rangkuman singkat atau koreksi pemahaman jika ada (1-2 kalimat, bahasa Indonesia)"}
+        Jangan tambahkan teks lain.`;
+
+        const payload = {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.4, maxOutputTokens: 200 }
+        };
+
+        try {
+          const res = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const resData = await res.json();
+
+          if (resData.error) {
+            throw new Error(resData.error.message || 'API Error');
+          }
+
+          let rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          // Clean markdown atau whitespace
+          rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+          
+          // Coba parse JSON
+          try {
+            const parsed = JSON.parse(rawText);
+            return {
+              topic: parsed.topic?.trim() || "Umum",
+              summary: parsed.summary?.trim() || "Ringkasan AI tidak tersedia."
+            };
+          } catch (parseErr) {
+            // fallback: cari pola sederhana
+            const topicMatch = rawText.match(/"topic"\s*:\s*"([^"]+)"/);
+            const summaryMatch = rawText.match(/"summary"\s*:\s*"([^"]+)"/);
+            return {
+              topic: topicMatch ? topicMatch[1] : "Umum",
+              summary: summaryMatch ? summaryMatch[1] : rawText.slice(0, 120) || "Ringkasan gagal diproses."
+            };
+          }
+        } catch (err) {
+          console.error('AI Fetch Error:', err);
+          alert('Gagal terhubung ke Gemini: ' + err.message);
+          return {
+            topic: "Lainnya",
+            summary: "Terjadi kesalahan saat memproses AI."
+          };
+        }
+      }
+
+      // ================== CRUD OPERATIONS ==================
+      async function saveEntry() {
+        const dateVal = dateInput.value;
+        const noteVal = noteInput.value.trim();
+        const understanding = parseInt(understandingSelect.value, 10);
+        const editId = editIdInput.value;
+
+        if (!dateVal || !noteVal) {
+          alert('Tanggal dan isi catatan tidak boleh kosong.');
+          return;
+        }
+
+        // Disable button
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Memproses AI...';
+
+        try {
+          const aiResult = await analyzeWithAI(noteVal);
+
+          if (editId) {
+            // Update existing
+            const idNum = Number(editId);
+            const index = data.findIndex(item => item.id === idNum);
+            if (index !== -1) {
+              data[index] = {
+                ...data[index],
+                date: dateVal,
+                topic: aiResult.topic || "Umum",
+                note: noteVal,
+                summary: aiResult.summary || "",
+                understanding: understanding
+              };
+            }
+          } else {
+            // Create new
+            const newEntry = {
+              id: Date.now(),
+              date: dateVal,
+              topic: aiResult.topic || "Umum",
+              note: noteVal,
+              summary: aiResult.summary || "",
+              understanding: understanding
+            };
+            data.unshift(newEntry);
+          }
+
+          persistData();
+          resetForm();
+        } catch (e) {
+          alert('Terjadi kesalahan: ' + e.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '⚡ Simpan & Proses AI';
+        }
+      }
+
+      function editEntry(id) {
+        const item = data.find(x => x.id === id);
+        if (!item) return;
+
+        editIdInput.value = item.id;
+        dateInput.value = item.date;
+        noteInput.value = item.note;
+        understandingSelect.value = item.understanding;
+
+        formTitle.textContent = '✏️ Edit Pembelajaran';
+        submitBtn.textContent = '🔄 Perbarui & Proses AI';
+        cancelBtn.style.display = 'inline-flex';
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function deleteEntry(id) {
+        if (confirm('Hapus catatan ini?')) {
+          data = data.filter(x => x.id !== id);
+          if (editingId === id) resetForm();
+          persistData();
+        }
+      }
+
+      function resetForm() {
+        editIdInput.value = '';
+        dateInput.value = new Date().toISOString().slice(0,10);
+        noteInput.value = '';
+        understandingSelect.value = '3';
+        formTitle.textContent = '📝 Tambah Pembelajaran';
+        submitBtn.textContent = '⚡ Simpan & Proses AI';
+        cancelBtn.style.display = 'none';
+        editingId = null;
+      }
+
+      // ================== FILTER ==================
+      function setFilter(cat) {
+        activeFilter = cat;
+        render();
+      }
+
+      // ================== RENDER ==================
+      function render() {
+        // Stats
+        const uniqueDays = new Set(data.map(x => x.date)).size;
+        const totalNotes = data.length;
+        const avgPerc = totalNotes ? Math.round((data.reduce((sum, x) => sum + x.understanding, 0) / totalNotes) / 5 * 100) : 0;
+
+        document.getElementById('days').textContent = uniqueDays;
+        document.getElementById('total').textContent = totalNotes;
+        document.getElementById('avg').textContent = avgPerc + '%';
+
+        // Topics grouping
+        const groups = {};
+        data.forEach(item => {
+          const topic = item.topic || 'Umum';
+          if (!groups[topic]) groups[topic] = [];
+          groups[topic].push(item);
+        });
+
+        // Render topics
+        const topicsContainer = document.getElementById('topics');
+        if (Object.keys(groups).length) {
+          let topicsHtml = `<h3 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin:18px 0 12px;">📌 Bidang yang Berkembang</h3>`;
+          const sortedTopics = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
+          sortedTopics.forEach(([topic, entries]) => {
+            const topicAvg = Math.round((entries.reduce((s,x)=>s+x.understanding,0) / entries.length) / 5 * 100);
+            topicsHtml += `
+              <div class="topic-item">
+                <div class="topic-info">
+                  <div class="topic-name">
+                    <span>${escapeHtml(topic)}</span>
+                    <span class="topic-meta">${entries.length} catatan · ${topicAvg}%</span>
+                  </div>
+                  <div class="progress">
+                    <div class="progress-bar" style="width:${topicAvg}%"></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          topicsContainer.innerHTML = topicsHtml;
+        } else {
+          topicsContainer.innerHTML = '<p class="empty-state" style="padding:10px 0;">Belum ada topik.</p>';
+        }
+
+        // Render filter bar
+        const filtersContainer = document.getElementById('filters');
+        const categories = ["Semua", ...Object.keys(groups)];
+        if (data.length > 0 && categories.length > 2) {
+          filtersContainer.style.display = 'flex';
+          filtersContainer.innerHTML = categories.map(cat => 
+            `<button class="filter-btn ${activeFilter === cat ? 'active' : ''}" onclick="setFilter('${escapeHtml(cat).replace(/'/g, "\\'")}')">${escapeHtml(cat)}</button>`
+          ).join('');
+        } else {
+          filtersContainer.style.display = 'none';
+          filtersContainer.innerHTML = '';
+        }
+
+        // Render history
+        const historyContainer = document.getElementById('history');
+        const filteredData = activeFilter === 'Semua' ? data : data.filter(x => (x.topic || 'Umum') === activeFilter);
+
+        if (!data.length) {
+          historyContainer.className = 'empty-state';
+          historyContainer.textContent = 'Belum ada catatan. Mulai tulis di atas!';
+          return;
+        }
+
+        if (!filteredData.length) {
+          historyContainer.className = 'empty-state';
+          historyContainer.textContent = 'Tidak ada catatan untuk topik ini.';
+          return;
+        }
+
+        historyContainer.className = '';
+        historyContainer.innerHTML = filteredData.map(item => {
+          const understandingLabel = ['', 'Baru Tahu', 'Sedikit Paham', 'Cukup Paham', 'Sangat Paham', 'Bisa Menjelaskan'][item.understanding] || '';
+          return `
+            <div class="entry">
+              <div class="meta-date">📅 ${escapeHtml(item.date)}</div>
+              <span class="badge">${escapeHtml(item.topic || 'Umum')}</span>
+              <div class="note-text">${escapeHtml(item.note)}</div>
+              ${item.summary ? `<div class="ai-summary">🤖 <strong>AI Insight:</strong> ${escapeHtml(item.summary)}</div>` : ''}
+              <div class="understanding-tag">⭐ Pemahaman: ${item.understanding}/5 · ${understandingLabel}</div>
+              <div class="actions">
+                <button class="btn-secondary" onclick="editEntry(${item.id})">✏️ Edit</button>
+                <button class="btn-danger" onclick="deleteEntry(${item.id})">🗑 Hapus</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // ================== UTILS ==================
+      function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // Expose functions to window (untuk inline onclick)
+      window.saveEntry = saveEntry;
+      window.resetForm = resetForm;
+      window.editEntry = editEntry;
+      window.deleteEntry = deleteEntry;
+      window.setFilter = setFilter;
+      window.saveApiKey = saveApiKey;
+
+      // Init
+      init();
+    })();
+  </script>
 </body>
 </html>
