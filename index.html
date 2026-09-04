@@ -1,939 +1,730 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Knowledge Map AI — Gemini 3.8 Flash</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #090d16;
-      --card-bg: rgba(17, 24, 39, 0.75);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent: #10b981;
-      --accent-strong: #059669;
-      --accent-glow: rgba(16, 185, 129, 0.2);
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --input-bg: #020617;
-      --danger: #ef4444;
-      --danger-bg: rgba(239, 68, 68, 0.15);
-      --radius: 20px;
-      --radius-sm: 12px;
-      --shadow: 0 18px 35px -12px rgba(0, 0, 0, 0.6);
-      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Map AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #090d16;
+            --card-bg: rgba(16, 22, 36, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
 
-    body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text-main);
-      line-height: 1.55;
-      background-image: 
-        radial-gradient(circle at 10% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.04) 0%, transparent 40%);
-      background-attachment: fixed;
-      min-height: 100vh;
-      padding: 18px 12px 40px;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
 
-    .app {
-      max-width: 800px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
 
-    header {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 4px 4px 8px;
-    }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 16px;
+        }
 
-    h1 {
-      font-size: clamp(1.8rem, 5vw, 2.4rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      color: white;
-      line-height: 1.2;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .sub {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      font-weight: 500;
-      padding-left: 4px;
-      border-left: 3px solid var(--accent);
-      padding-left: 14px;
-    }
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
 
-    .model-badge {
-      display: inline-block;
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--accent);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 99px;
-      padding: 4px 12px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
 
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 22px 20px;
-      box-shadow: var(--shadow);
-      transition: border-color var(--transition);
-    }
+        .card:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
 
-    .card:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-    }
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
 
-    h2 {
-      font-size: 0.82rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--accent);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
 
-    label {
-      display: block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin: 16px 0 6px;
-    }
+        /* Layout Main */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
 
-    label:first-of-type {
-      margin-top: 0;
-    }
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 350px 1fr;
+            }
+        }
 
-    input, textarea, select {
-      width: 100%;
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      background: var(--input-bg);
-      color: white;
-      transition: var(--transition);
-      appearance: none;
-      -webkit-appearance: none;
-    }
+        /* Form Elements */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px var(--accent-glow);
-      background: #030712;
-    }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-    textarea {
-      min-height: 110px;
-      resize: vertical;
-      line-height: 1.5;
-    }
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
 
-    select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      padding-right: 40px;
-    }
+        input, textarea, select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
 
-    button {
-      border: none;
-      border-radius: var(--radius-sm);
-      padding: 13px 20px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      background: var(--accent);
-      color: #030712;
-      transition: var(--transition);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      letter-spacing: -0.2px;
-      white-space: nowrap;
-      flex: 1;
-    }
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+        }
 
-    button:hover:not(:disabled) {
-      background: #0d9f6e;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 20px -10px rgba(16, 185, 129, 0.4);
-    }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
 
-    button:active:not(:disabled) {
-      transform: translateY(0);
-      box-shadow: none;
-    }
+        button {
+            background: var(--accent);
+            color: #000;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+        button:hover {
+            background: var(--accent-hover);
+        }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text-main);
-      border: 1px solid var(--card-border);
-    }
-    .btn-secondary:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.1);
-    }
+        button:active {
+            transform: scale(0.98);
+        }
 
-    .btn-danger {
-      background: var(--danger-bg);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-    .btn-danger:hover:not(:disabled) {
-      background: rgba(239, 68, 68, 0.3);
-    }
+        .btn-cancel {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--card-border);
+            margin-top: 8px;
+        }
 
-    .row {
-      display: flex;
-      gap: 10px;
-      margin-top: 22px;
-      flex-wrap: wrap;
-    }
-    .row > button {
-      flex: 1;
-      min-width: 140px;
-    }
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
 
-    /* Stats grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 22px;
-    }
-    .stat-box {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 16px 8px;
-      text-align: center;
-    }
-    .stat-number {
-      font-size: 1.9rem;
-      font-weight: 800;
-      color: white;
-      line-height: 1.2;
-    }
-    .stat-label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-    }
+        /* Progress Bar Section */
+        .topic-progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
 
-    /* Topics */
-    .topic-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .topic-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .topic-name {
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: #fff;
-      display: flex;
-      justify-content: space-between;
-    }
-    .topic-meta {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .progress {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.07);
-      border-radius: 99px;
-      margin-top: 6px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 99px;
-      transition: width 0.6s ease;
-    }
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
-    /* Filter bar */
-    .filter-bar {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      margin-bottom: 10px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--accent) transparent;
-    }
-    .filter-bar::-webkit-scrollbar {
-      height: 4px;
-    }
-    .filter-bar::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 99px;
-    }
-    .filter-btn {
-      padding: 7px 16px;
-      border-radius: 99px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-muted);
-      white-space: nowrap;
-      border: 1px solid var(--card-border);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .filter-btn.active {
-      background: var(--accent);
-      color: #030712;
-      border-color: var(--accent);
-    }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
 
-    /* Entries */
-    .entry {
-      border-top: 1px solid var(--card-border);
-      padding: 20px 0;
-    }
-    .entry:first-child {
-      border-top: none;
-      padding-top: 0;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 14px;
-      border-radius: 99px;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .meta-date {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-    .note-text {
-      color: #f1f5f9;
-      font-size: 0.95rem;
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin-bottom: 6px;
-    }
-    .ai-summary {
-      background: rgba(16, 185, 129, 0.08);
-      border-left: 3px solid var(--accent);
-      color: #d1fae5;
-      padding: 10px 14px;
-      border-radius: 0 10px 10px 0;
-      font-size: 0.85rem;
-      margin-top: 10px;
-      line-height: 1.5;
-    }
-    .understanding-tag {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 8px;
-    }
-    .actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
-    .actions button {
-      padding: 7px 14px;
-      font-size: 0.75rem;
-      flex: 0 1 auto;
-      min-width: auto;
-    }
+        .bar-bg {
+            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
 
-    .empty-state {
-      color: var(--text-muted);
-      text-align: center;
-      padding: 32px 16px;
-      font-size: 0.95rem;
-    }
+        .bar-fill {
+            background: var(--accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
 
-    /* API card */
-    .api-card {
-      border-style: dashed !important;
-      opacity: 0.9;
-    }
-    .api-link {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
+        /* Log / History List */
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
 
-    @media (max-width: 600px) {
-      .stats-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-      .row {
-        flex-direction: column;
-      }
-      .card {
-        padding: 18px 16px;
-      }
-    }
-  </style>
+        .logs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .log-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .log-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .log-text {
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .ai-summary {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--accent);
+            padding: 8px 12px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.85rem;
+            color: #d1d5db;
+        }
+
+        .log-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+            font-size: 0.8rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-action:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-delete:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0,0,0,0.3);
+            border-radius: 50%;
+            border-top-color: #000;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <!-- Header -->
+
+<div class="container">
     <header>
-      <span class="model-badge">⚡ Gemini 3.8 Flash</span>
-      <h1>🧠 Knowledge Map</h1>
-      <p class="sub">Tulis 1 kalimat, AI otomatis petakan & rapikan.</p>
+        <h1>🧠 Knowledge Map AI</h1>
     </header>
 
-    <!-- Form Card -->
-    <div class="card">
-      <h2 id="form-title">📝 Tambah Pembelajaran</h2>
-      <input type="hidden" id="edit-id">
-
-      <label for="date">Tanggal</label>
-      <input id="date" type="date" required>
-
-      <label for="note">Apa yang kamu pelajari hari ini?</label>
-      <textarea id="note" placeholder='Contoh: Belajar print("Hello World") di Python atau baca Meditations tentang kontrol diri...' required></textarea>
-
-      <label for="understanding">Tingkat Pemahaman</label>
-      <select id="understanding">
-        <option value="1">1/5 · Baru Tahu</option>
-        <option value="2">2/5 · Sedikit Paham</option>
-        <option value="3" selected>3/5 · Cukup Paham</option>
-        <option value="4">4/5 · Sangat Paham</option>
-        <option value="5">5/5 · Bisa Menjelaskan</option>
-      </select>
-
-      <div class="row">
-        <button id="submit-btn" onclick="saveEntry()">⚡ Simpan & Proses AI</button>
-        <button class="btn-secondary" id="cancel-btn" onclick="resetForm()" style="display:none;">Batal</button>
-      </div>
-    </div>
-
-    <!-- Stats & Topics Card -->
-    <div class="card">
-      <h2>📊 Perkembangan Topik</h2>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-number" id="days">0</div>
-          <div class="stat-label">Hari Aktif</div>
+    <div class="dashboard">
+        <div class="card stat-card">
+            <h3>Total Catatan</h3>
+            <div class="value" id="stat-total">0</div>
         </div>
-        <div class="stat-box">
-          <div class="stat-number" id="total">0</div>
-          <div class="stat-label">Catatan</div>
+        <div class="card stat-card">
+            <h3>Hari Aktif</h3>
+            <div class="value" id="stat-days">0</div>
         </div>
-        <div class="stat-box">
-          <div class="stat-number" id="avg">0%</div>
-          <div class="stat-label">Pemahaman</div>
+        <div class="card stat-card">
+            <h3>Rata-Rata Pemahaman</h3>
+            <div class="value" id="stat-rating">0 / 5</div>
         </div>
-      </div>
-      <div id="topics"></div>
     </div>
 
-    <!-- History & Filter Card -->
-    <div class="card">
-      <h2>📚 Riwayat & Rangkuman AI</h2>
-      <div id="filters" class="filter-bar"></div>
-      <div id="history" class="empty-state">Belum ada catatan. Mulai tulis di atas!</div>
+    <div class="main-content">
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card">
+                <h2 style="font-size: 1.1rem; margin-bottom: 16px;" id="form-title">Tambah Pembelajaran</h2>
+                <form id="note-form">
+                    <input type="hidden" id="edit-id">
+                    
+                    <div class="form-group">
+                        <label for="date">Tanggal</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="note">Apa yang kamu pelajari? (1-2 kalimat)</label>
+                        <textarea id="note" placeholder="Contoh: Hari ini belajar Async/Await di JS untuk menangani API request secara asinkron." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="understanding">Tingkat Pemahaman (1-5)</label>
+                        <select id="understanding" required>
+                            <option value="1">1 - Kurang Paham</option>
+                            <option value="2">2 - Agak Paham</option>
+                            <option value="3" selected>3 - Cukup Paham</option>
+                            <option value="4">4 - Paham</option>
+                            <option value="5">5 - Sangat Menguasai</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="btn-submit">Simpan & Analisis AI</button>
+                    <button type="button" class="btn-cancel" id="btn-cancel" style="display: none;">Batal Edit</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 style="font-size: 1.1rem;">Topik Terpopuler</h2>
+                <div class="topic-progress-list" id="topic-progress">
+                    <div class="empty-state" style="padding: 10px 0;">Belum ada data topik.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="history-header">
+                <h2 style="font-size: 1.1rem;">Riwayat Pembelajaran</h2>
+                <select id="filter-topic" style="padding: 6px 12px; font-size: 0.85rem;">
+                    <option value="ALL">Semua Topik</option>
+                </select>
+            </div>
+
+            <div class="logs-list" id="logs-container">
+                </div>
+        </div>
     </div>
+</div>
 
-    <!-- API Settings Card -->
-    <div class="card api-card">
-      <h2>⚙️ Pengaturan AI (Gemini 3.8 Flash)</h2>
-      <label for="api-key">Gemini API Key — tersimpan lokal di browser</label>
-      <input id="api-key" type="password" placeholder="Tempel Gemini API Key" onchange="saveApiKey()">
-      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">
-        Dapatkan key di <a class="api-link" href="https://aistudio.google.com/" target="_blank" rel="noopener">aistudio.google.com</a>. Model: gemini-3.8-flash.
-      </p>
-    </div>
-  </div>
+<div id="toast">Notifikasi</div>
 
-  <script>
-    (function() {
-      // ================== CONFIG & STORAGE ==================
-      const STORAGE_KEY = "knowledge_tracker_gemini38_v1";
-      const API_KEY_STORAGE = "gemini_api_key_v1";
-      const GEMINI_MODEL = "gemini-3.8-flash"; // Model terbaru Gemini 3.8 Flash
-      const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+<script>
+    // State Aplikasi
+    let notes = JSON.parse(localStorage.getItem('km_notes')) || [];
 
-      // ================== STATE ==================
-      let data = [];
-      let activeFilter = "Semua";
-      let editingId = null;
-      let isProcessing = false;
+    // DOM Elements
+    const form = document.getElementById('note-form');
+    const inputId = document.getElementById('edit-id');
+    const inputDate = document.getElementById('date');
+    const inputNote = document.getElementById('note');
+    const inputUnderstanding = document.getElementById('understanding');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnCancel = document.getElementById('btn-cancel');
+    const formTitle = document.getElementById('form-title');
+    const logsContainer = document.getElementById('logs-container');
+    const filterTopic = document.getElementById('filter-topic');
 
-      // ================== DOM REFS ==================
-      const dateInput = document.getElementById('date');
-      const noteInput = document.getElementById('note');
-      const understandingSelect = document.getElementById('understanding');
-      const editIdInput = document.getElementById('edit-id');
-      const submitBtn = document.getElementById('submit-btn');
-      const cancelBtn = document.getElementById('cancel-btn');
-      const formTitle = document.getElementById('form-title');
-      const apiKeyInput = document.getElementById('api-key');
+    // Default Date to Today
+    inputDate.value = new Date().toISOString().split('T')[0];
 
-      // ================== INIT ==================
-      function init() {
-        // Load data
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          try {
-            data = JSON.parse(stored);
-            if (!Array.isArray(data)) data = [];
-          } catch(e) { 
-            console.warn('Failed to parse stored data, resetting...', e);
-            data = []; 
-          }
-        }
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+        renderApp();
+    });
 
-        // Load API key
-        const savedKey = localStorage.getItem(API_KEY_STORAGE);
-        if (savedKey) apiKeyInput.value = savedKey;
+    // Event: Form Submit (Ctrl+Enter atau Klik)
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveNote();
+    });
 
-        // Set default date
-        dateInput.value = new Date().toISOString().slice(0,10);
-
-        // Add event listeners for Enter key
-        noteInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && e.ctrlKey) {
+    inputNote.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
             e.preventDefault();
-            saveEntry();
-          }
-        });
-
-        render();
-      }
-
-      // ================== PERSISTENCE ==================
-      function persistData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        render();
-      }
-
-      function saveApiKey() {
-        const key = apiKeyInput.value.trim();
-        if (key) {
-          localStorage.setItem(API_KEY_STORAGE, key);
-          showToast('✅ API Key tersimpan!');
-        } else {
-          localStorage.removeItem(API_KEY_STORAGE);
-          showToast('🗑️ API Key dihapus');
+            form.requestSubmit();
         }
-      }
+    });
 
-      // ================== TOAST NOTIFICATION ==================
-      function showToast(message) {
-        const existingToast = document.querySelector('.toast');
-        if (existingToast) existingToast.remove();
+    btnCancel.addEventListener('click', resetForm);
+    filterTopic.addEventListener('change', renderLogs);
 
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = message;
-        toast.style.cssText = `
-          position: fixed;
-          bottom: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(17, 24, 39, 0.95);
-          color: white;
-          padding: 12px 20px;
-          border-radius: 12px;
-          border: 1px solid var(--accent);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-          z-index: 9999;
-          font-size: 0.9rem;
-          font-weight: 600;
-          animation: fadeInUp 0.3s ease;
-        `;
-        document.body.appendChild(toast);
+    // AI API Call Function (Pollinations.ai)
+    async function processWithAI(text) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 Detik Timeout
 
-        setTimeout(() => {
-          toast.style.opacity = '0';
-          toast.style.transition = 'opacity 0.3s ease';
-          setTimeout(() => toast.remove(), 300);
-        }, 3000);
-      }
-
-      // ================== AI ANALYSIS (Gemini 3.8 Flash) ==================
-      async function analyzeWithAI(text) {
-        const apiKey = localStorage.getItem(API_KEY_STORAGE);
-        if (!apiKey) {
-          alert('⚠️ Isi Gemini API Key dulu di bagian Pengaturan AI paling bawah.');
-          return {
-            topic: "Umum",
-            summary: "API Key belum diisi."
-          };
-        }
-
-        const prompt = `Analisis catatan pembelajaran ringkas ini: "${text}". 
-        Berikan output DALAM FORMAT JSON SAJA persis seperti ini:
-        {"topic":"Topik Utama 1-3 kata (misal: Coding, Filsafat, Sains, Bisnis, Buku, Agama, dll)","summary":"Rangkuman singkat atau koreksi pemahaman jika ada (1-2 kalimat, bahasa Indonesia)"}
-        Jangan tambahkan teks lain.`;
-
-        const payload = {
-          contents: [{ 
-            parts: [{ text: prompt }] 
-          }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 300,
-            topP: 0.95,
-            topK: 40
-          },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_NONE"
-            },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH",
-              threshold: "BLOCK_NONE"
-            },
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_NONE"
-            },
-            {
-              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-              threshold: "BLOCK_NONE"
-            }
-          ]
-        };
+        const prompt = `Analisis teks catatan pembelajaran ini: "${text}". 
+        Ekstrak topik utamanya (1-3 kata) dan buatkan rangkuman/insight singkat (1-2 kalimat). 
+        Kembalikan HANYA format JSON persis seperti ini: {"topic": "Nama Topik", "summary": "Rangkuman singkat"}`;
 
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 detik timeout
+            const response = await fetch('https://text.pollinations.ai/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
+                body: JSON.stringify({
+                    messages: [
+                        { role: 'system', content: 'Kamu adalah asisten pengolah data JSON otomatis. Keluarkan JSON valid tanpa markdown.' },
+                        { role: 'user', content: prompt }
+                    ]
+                })
+            });
 
-          const res = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            signal: controller.signal
-          });
+            clearTimeout(timeoutId);
 
-          clearTimeout(timeoutId);
+            if (!response.ok) throw new Error('API Error');
 
-          if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `HTTP ${res.status}`);
-          }
+            const resultText = await response.text();
+            
+            // Clean format markdown jika ada ```json ... ```
+            const cleanJsonText = resultText.replace(/```json|```/g, '').trim();
+            const data = JSON.parse(cleanJsonText);
 
-          const resData = await res.json();
-
-          if (resData.error) {
-            throw new Error(resData.error.message || 'API Error');
-          }
-
-          let rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          // Clean markdown atau whitespace
-          rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-          
-          // Coba parse JSON
-          try {
-            const parsed = JSON.parse(rawText);
             return {
-              topic: parsed.topic?.trim() || "Umum",
-              summary: parsed.summary?.trim() || "Ringkasan AI tidak tersedia."
+                topic: data.topic || "Umum",
+                summary: data.summary || "Berhasil diproses."
             };
-          } catch (parseErr) {
-            // fallback: cari pola sederhana
-            const topicMatch = rawText.match(/"topic"\s*:\s*"([^"]+)"/);
-            const summaryMatch = rawText.match(/"summary"\s*:\s*"([^"]+)"/);
-            if (topicMatch || summaryMatch) {
-              return {
-                topic: topicMatch ? topicMatch[1] : "Umum",
-                summary: summaryMatch ? summaryMatch[1] : rawText.slice(0, 150)
-              };
-            }
-            return {
-              topic: "Umum",
-              summary: rawText.slice(0, 150) || "Ringkasan gagal diproses."
-            };
-          }
         } catch (err) {
-          console.error('AI Fetch Error:', err);
-          
-          if (err.name === 'AbortError') {
-            alert('⏰ Timeout: AI membutuhkan waktu terlalu lama. Coba lagi.');
-          } else {
-            alert('❌ Gagal terhubung ke Gemini: ' + err.message);
-          }
-          
-          return {
-            topic: "Lainnya",
-            summary: "Terjadi kesalahan saat memproses AI."
-          };
-        }
-      }
-
-      // ================== CRUD OPERATIONS ==================
-      async function saveEntry() {
-        if (isProcessing) return;
-
-        const dateVal = dateInput.value;
-        const noteVal = noteInput.value.trim();
-        const understanding = parseInt(understandingSelect.value, 10);
-        const editId = editIdInput.value;
-
-        if (!dateVal || !noteVal) {
-          alert('Tanggal dan isi catatan tidak boleh kosong.');
-          return;
-        }
-
-        isProcessing = true;
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Memproses AI...';
-
-        try {
-          const aiResult = await analyzeWithAI(noteVal);
-
-          if (editId) {
-            // Update existing
-            const idNum = Number(editId);
-            const index = data.findIndex(item => item.id === idNum);
-            if (index !== -1) {
-              data[index] = {
-                ...data[index],
-                date: dateVal,
-                topic: aiResult.topic || "Umum",
-                note: noteVal,
-                summary: aiResult.summary || "",
-                understanding: understanding,
-                updatedAt: Date.now()
-              };
-            }
-          } else {
-            // Create new
-            const newEntry = {
-              id: Date.now(),
-              date: dateVal,
-              topic: aiResult.topic || "Umum",
-              note: noteVal,
-              summary: aiResult.summary || "",
-              understanding: understanding,
-              createdAt: Date.now()
+            console.warn('AI processing failed, using fallback:', err);
+            return {
+                topic: "Umum",
+                summary: "Gagal memproses AI (koneksi terputus/timeout)."
             };
-            data.unshift(newEntry);
-          }
-
-          persistData();
-          resetForm();
-          showToast('✅ Catatan berhasil disimpan!');
-        } catch (e) {
-          alert('Terjadi kesalahan: ' + e.message);
-        } finally {
-          isProcessing = false;
-          submitBtn.disabled = false;
-          submitBtn.textContent = '⚡ Simpan & Proses AI';
         }
-      }
+    }
 
-      function editEntry(id) {
-        const item = data.find(x => x.id === id);
+    // Save or Update Note
+    async function saveNote() {
+        const id = inputId.value;
+        const date = inputDate.value;
+        const noteText = inputNote.value.trim();
+        const understanding = parseInt(inputUnderstanding.value);
+
+        if (!noteText) return;
+
+        // UI Loading State
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `<span class="loading-spinner"></span> Menganalisis...`;
+
+        let aiResult = { topic: "Umum", summary: "Gagal memproses AI" };
+
+        if (id) {
+            // Edit Mode: Gunakan data lama jika teks tidak berubah banyak
+            const existingNote = notes.find(n => n.id == id);
+            if (existingNote && existingNote.note === noteText) {
+                aiResult = { topic: existingNote.topic, summary: existingNote.summary };
+            } else {
+                aiResult = await processWithAI(noteText);
+            }
+        } else {
+            // Create Mode: Panggil AI
+            aiResult = await processWithAI(noteText);
+        }
+
+        if (id) {
+            // Update
+            notes = notes.map(n => n.id == id ? {
+                ...n,
+                date,
+                note: noteText,
+                understanding,
+                topic: aiResult.topic,
+                summary: aiResult.summary
+            } : n);
+            showToast('Catatan berhasil diperbarui!');
+        } else {
+            // New Entry
+            const newEntry = {
+                id: Date.now(),
+                date,
+                note: noteText,
+                topic: aiResult.topic,
+                summary: aiResult.summary,
+                understanding,
+                createdAt: Date.now()
+            };
+            notes.unshift(newEntry);
+            showToast('Catatan baru berhasil ditambahkan!');
+        }
+
+        saveToLocalStorage();
+        resetForm();
+        renderApp();
+    }
+
+    // Delete Note
+    function deleteNote(id) {
+        if (confirm('Apakah Anda yakin ingin menghapus catatan ini?')) {
+            notes = notes.filter(n => n.id !== id);
+            saveToLocalStorage();
+            renderApp();
+            showToast('Catatan dihapus.');
+        }
+    }
+
+    // Edit Note Mode
+    function startEdit(id) {
+        const item = notes.find(n => n.id === id);
         if (!item) return;
 
-        editIdInput.value = item.id;
-        dateInput.value = item.date;
-        noteInput.value = item.note;
-        understandingSelect.value = item.understanding;
+        inputId.value = item.id;
+        inputDate.value = item.date;
+        inputNote.value = item.note;
+        inputUnderstanding.value = item.understanding;
 
-        formTitle.textContent = '✏️ Edit Pembelajaran';
-        submitBtn.textContent = '🔄 Perbarui & Proses AI';
-        cancelBtn.style.display = 'inline-flex';
-        
+        formTitle.textContent = "Edit Catatan";
+        btnSubmit.textContent = "Perbarui Catatan";
+        btnCancel.style.display = "block";
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        noteInput.focus();
-      }
+    }
 
-      function deleteEntry(id) {
-        if (confirm('Hapus catatan ini?')) {
-          data = data.filter(x => x.id !== id);
-          if (editingId === id) resetForm();
-          persistData();
-          showToast('🗑️ Catatan dihapus');
+    // Reset Form
+    function resetForm() {
+        inputId.value = '';
+        inputNote.value = '';
+        inputUnderstanding.value = '3';
+        inputDate.value = new Date().toISOString().split('T')[0];
+        formTitle.textContent = "Tambah Pembelajaran";
+        btnSubmit.textContent = "Simpan & Analisis AI";
+        btnSubmit.disabled = false;
+        btnCancel.style.display = "none";
+    }
+
+    // Save to LocalStorage
+    function saveToLocalStorage() {
+        localStorage.setItem('km_notes', JSON.stringify(notes));
+    }
+
+    // Render All Views
+    function renderApp() {
+        renderStats();
+        renderTopicsFilter();
+        renderProgressBars();
+        renderLogs();
+    }
+
+    // Render Stats
+    function renderStats() {
+        document.getElementById('stat-total').textContent = notes.length;
+        
+        // Count unique active days
+        const activeDays = new Set(notes.map(n => n.date)).size;
+        document.getElementById('stat-days').textContent = activeDays;
+
+        // Calculate average understanding
+        if (notes.length === 0) {
+            document.getElementById('stat-rating').textContent = "0 / 5";
+            return;
         }
-      }
+        const avg = (notes.reduce((acc, curr) => acc + curr.understanding, 0) / notes.length).toFixed(1);
+        document.getElementById('stat-rating').textContent = `${avg} / 5`;
+    }
 
-      function resetForm() {
-        editIdInput.value = '';
-        dateInput.value = new Date().toISOString().slice(0,10);
-        noteInput.value = '';
-        understandingSelect.value = '3';
-        formTitle.textContent = '📝 Tambah Pembelajaran';
-        submitBtn.textContent = '⚡ Simpan & Proses AI';
-        cancelBtn.style.display = 'none';
-        editingId = null;
-      }
+    // Render Topic Progress Bars
+    function renderProgressBars() {
+        const container = document.getElementById('topic-progress');
+        if (notes.length === 0) {
+            container.innerHTML = '<div class="empty-state" style="padding:10px 0;">Belum ada data topik.</div>';
+            return;
+        }
 
-      // ================== FILTER ==================
-      function setFilter(cat) {
-        activeFilter = cat;
-        render();
-      }
+        // Hitung frekuensi topik
+        const counts = {};
+        notes.forEach(n => counts[n.topic] = (counts[n.topic] || 0) + 1);
 
-      // ================== RENDER ==================
-      function render() {
-        // Stats
-        const uniqueDays = new Set(data.map(x => x.date)).size;
-        const totalNotes = data.length;
-        const avgPerc = totalNotes ? Math.round((data.reduce((sum, x) => sum + x.understanding, 0) / totalNotes) / 5 * 100) : 0;
+        // Sort Top 4 Topic
+        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
 
-        document.getElementById('days').textContent = uniqueDays;
-        document.getElementById('total').textContent = totalNotes;
-        document.getElementById('avg').textContent = avgPerc + '%';
-
-        // Topics grouping
-        const groups = {};
-        data.forEach(item => {
-          const topic = item.topic || 'Umum';
-          if (!groups[topic]) groups[topic] = [];
-          groups[topic].push(item);
-        });
-
-        // Render topics
-        const topicsContainer = document.getElementById('topics');
-        if (Object.keys(groups).length) {
-          let topicsHtml = `<h3 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin:18px 0 12px;">📌 Bidang yang Berkembang</h3>`;
-          const sortedTopics = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
-          sortedTopics.forEach(([topic, entries]) => {
-            const topicAvg = Math.round((entries.reduce((s,x)=>s+x.understanding,0) / entries.length) / 5 * 100);
-            topicsHtml += `
-              <div class="topic-item">
-                <div class="topic-info">
-                  <div class="topic-name">
-                    <span>${escapeHtml(topic)}</span>
-                    <span class="topic-meta">${entries.length} catatan · ${topicAvg}%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" style="width:${topicAvg}%"></div>
-                  </div>
+        container.innerHTML = sorted.map(([topic, count]) => {
+            const percentage = Math.round((count / notes.length) * 100);
+            return `
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>${escapeHtml(topic)}</span>
+                        <span style="color: var(--text-muted);">${count} log (${percentage}%)</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: ${percentage}%"></div>
+                    </div>
                 </div>
-              </div>
             `;
-          });
-          topicsContainer.innerHTML = topicsHtml;
-        } else {
-          topicsContainer.innerHTML = '<p class="empty-state" style="padding:10px 0;">Belum ada topik.</p>';
-        }
-
-        // Render filter bar
-        const filtersContainer = document.getElementById('filters');
-        const categories = ["Semua", ...Object.keys(groups)];
-        if (data.length > 0 && categories.length > 2) {
-          filtersContainer.style.display = 'flex';
-          filtersContainer.innerHTML = categories.map(cat => 
-            `<button class="filter-btn ${activeFilter === cat ? 'active' : ''}" onclick="setFilter('${escapeHtml(cat).replace(/'/g, "\\'")}')">${escapeHtml(cat)}</button>`
-          ).join('');
-        } else {
-          filtersContainer.style.display = 'none';
-          filtersContainer.innerHTML = '';
-        }
-
-        // Render history
-        const historyContainer = document.getElementById('history');
-        const filteredData = activeFilter === 'Semua' ? data : data.filter(x => (x.topic || 'Umum') === activeFilter);
-
-        if (!data.length) {
-          historyContainer.className = 'empty-state';
-          historyContainer.textContent = 'Belum ada catatan. Mulai tulis di atas!';
-          return;
-        }
-
-        if (!filteredData.length) {
-          historyContainer.className = 'empty-state';
-          historyContainer.textContent = 'Tidak ada catatan untuk topik ini.';
-          return;
-        }
-
-        historyContainer.className = '';
-        historyContainer.innerHTML = filteredData.map(item => {
-          const understandingLabel = ['', 'Baru Tahu', 'Sedikit Paham', 'Cukup Paham', 'Sangat Paham', 'Bisa Menjelaskan'][item.understanding] || '';
-          return `
-            <div class="entry">
-              <div class="meta-date">📅 ${escapeHtml(item.date)}</div>
-              <span class="badge">${escapeHtml(item.topic || 'Umum')}</span>
-              <div class="note-text">${escapeHtml(item.note)}</div>
-              ${item.summary ? `<div class="ai-summary">🤖 <strong>AI Insight:</strong> ${escapeHtml(item.summary)}</div>` : ''}
-              <div class="understanding-tag">⭐ Pemahaman: ${item.understanding}/5 · ${understandingLabel}</div>
-              <div class="actions">
-                <button class="btn-secondary" onclick="editEntry(${item.id})">✏️ Edit</button>
-                <button class="btn-danger" onclick="deleteEntry(${item.id})">🗑 Hapus</button>
-              </div>
-            </div>
-          `;
         }).join('');
-      }
+    }
 
-      // ================== UTILS ==================
-      function escapeHtml(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-      }
+    // Populate Filter Select Options
+    function renderTopicsFilter() {
+        const selected = filterTopic.value;
+        const topics = Array.from(new Set(notes.map(n => n.topic)));
+        
+        filterTopic.innerHTML = '<option value="ALL">Semua Topik</option>' + 
+            topics.map(t => `<option value="${escapeHtml(t)}"${selected === t ? ' selected' : ''}>${escapeHtml(t)}</option>`).join('');
+    }
 
-      // Expose functions to window (untuk inline onclick)
-      window.saveEntry = saveEntry;
-      window.resetForm = resetForm;
-      window.editEntry = editEntry;
-      window.deleteEntry = deleteEntry;
-      window.setFilter = setFilter;
-      window.saveApiKey = saveApiKey;
+    // Render History Logs
+    function renderLogs() {
+        const filter = filterTopic.value;
+        const filteredNotes = filter === 'ALL' ? notes : notes.filter(n => n.topic === filter);
 
-      // Init
-      init();
-    })();
-  </script>
+        if (filteredNotes.length === 0) {
+            logsContainer.innerHTML = '<div class="empty-state">Belum ada riwayat pembelajaran tercatat.</div>';
+            return;
+        }
+
+        logsContainer.innerHTML = filteredNotes.map(item => `
+            <div class="log-card card">
+                <div class="log-header">
+                    <span class="badge">${escapeHtml(item.topic)}</span>
+                    <span class="log-date">${item.date}</span>
+                </div>
+                <div class="log-text">${escapeHtml(item.note)}</div>
+                <div class="ai-summary">
+                    <strong>AI Insight:</strong> ${escapeHtml(item.summary)}
+                </div>
+                <div class="log-footer">
+                    <div>Pemahaman: <span style="color: var(--accent); font-weight:600;">${item.understanding}/5</span></div>
+                    <div class="actions">
+                        <button class="btn-action" onclick="startEdit(${item.id})">Edit</button>
+                        <button class="btn-action btn-delete" onclick="deleteNote(${item.id})">Hapus</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Helper: Toast
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Helper: Anti-XSS Sanitization
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+</script>
+
 </body>
 </html>
