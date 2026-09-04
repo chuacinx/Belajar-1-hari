@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Knowledge Map AI — Pro & Simpel</title>
+  <title>Knowledge Map AI — Gemini 3.8 Flash</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -78,6 +78,20 @@
       padding-left: 4px;
       border-left: 3px solid var(--accent);
       padding-left: 14px;
+    }
+
+    .model-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 99px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
     }
 
     .card {
@@ -416,6 +430,7 @@
   <div class="app">
     <!-- Header -->
     <header>
+      <span class="model-badge">⚡ Gemini 3.8 Flash</span>
       <h1>🧠 Knowledge Map</h1>
       <p class="sub">Tulis 1 kalimat, AI otomatis petakan & rapikan.</p>
     </header>
@@ -475,11 +490,11 @@
 
     <!-- API Settings Card -->
     <div class="card api-card">
-      <h2>⚙️ Pengaturan AI (Gemini)</h2>
+      <h2>⚙️ Pengaturan AI (Gemini 3.8 Flash)</h2>
       <label for="api-key">Gemini API Key — tersimpan lokal di browser</label>
       <input id="api-key" type="password" placeholder="Tempel Gemini API Key" onchange="saveApiKey()">
       <p style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">
-        Dapatkan key di <a class="api-link" href="https://aistudio.google.com/" target="_blank" rel="noopener">aistudio.google.com</a>. Model: gemini-2.5-flash.
+        Dapatkan key di <a class="api-link" href="https://aistudio.google.com/" target="_blank" rel="noopener">aistudio.google.com</a>. Model: gemini-3.8-flash.
       </p>
     </div>
   </div>
@@ -487,15 +502,16 @@
   <script>
     (function() {
       // ================== CONFIG & STORAGE ==================
-      const STORAGE_KEY = "knowledge_tracker_pro_v1";
+      const STORAGE_KEY = "knowledge_tracker_gemini38_v1";
       const API_KEY_STORAGE = "gemini_api_key_v1";
-      const GEMINI_MODEL = "gemini-2.5-flash";  // atau "gemini-1.5-flash" 
+      const GEMINI_MODEL = "gemini-3.8-flash"; // Model terbaru Gemini 3.8 Flash
       const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
       // ================== STATE ==================
       let data = [];
       let activeFilter = "Semua";
       let editingId = null;
+      let isProcessing = false;
 
       // ================== DOM REFS ==================
       const dateInput = document.getElementById('date');
@@ -514,9 +530,11 @@
         if (stored) {
           try {
             data = JSON.parse(stored);
-            // sanitize old data jika perlu
             if (!Array.isArray(data)) data = [];
-          } catch(e) { data = []; }
+          } catch(e) { 
+            console.warn('Failed to parse stored data, resetting...', e);
+            data = []; 
+          }
         }
 
         // Load API key
@@ -525,6 +543,14 @@
 
         // Set default date
         dateInput.value = new Date().toISOString().slice(0,10);
+
+        // Add event listeners for Enter key
+        noteInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && e.ctrlKey) {
+            e.preventDefault();
+            saveEntry();
+          }
+        });
 
         render();
       }
@@ -539,12 +565,47 @@
         const key = apiKeyInput.value.trim();
         if (key) {
           localStorage.setItem(API_KEY_STORAGE, key);
+          showToast('✅ API Key tersimpan!');
         } else {
           localStorage.removeItem(API_KEY_STORAGE);
+          showToast('🗑️ API Key dihapus');
         }
       }
 
-      // ================== AI ANALYSIS ==================
+      // ================== TOAST NOTIFICATION ==================
+      function showToast(message) {
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(17, 24, 39, 0.95);
+          color: white;
+          padding: 12px 20px;
+          border-radius: 12px;
+          border: 1px solid var(--accent);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+          z-index: 9999;
+          font-size: 0.9rem;
+          font-weight: 600;
+          animation: fadeInUp 0.3s ease;
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // ================== AI ANALYSIS (Gemini 3.8 Flash) ==================
       async function analyzeWithAI(text) {
         const apiKey = localStorage.getItem(API_KEY_STORAGE);
         if (!apiKey) {
@@ -561,16 +622,52 @@
         Jangan tambahkan teks lain.`;
 
         const payload = {
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 200 }
+          contents: [{ 
+            parts: [{ text: prompt }] 
+          }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 300,
+            topP: 0.95,
+            topK: 40
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_NONE"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_NONE"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_NONE"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_NONE"
+            }
+          ]
         };
 
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 detik timeout
+
           const res = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
           });
+
+          clearTimeout(timeoutId);
+
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `HTTP ${res.status}`);
+          }
 
           const resData = await res.json();
 
@@ -593,14 +690,26 @@
             // fallback: cari pola sederhana
             const topicMatch = rawText.match(/"topic"\s*:\s*"([^"]+)"/);
             const summaryMatch = rawText.match(/"summary"\s*:\s*"([^"]+)"/);
+            if (topicMatch || summaryMatch) {
+              return {
+                topic: topicMatch ? topicMatch[1] : "Umum",
+                summary: summaryMatch ? summaryMatch[1] : rawText.slice(0, 150)
+              };
+            }
             return {
-              topic: topicMatch ? topicMatch[1] : "Umum",
-              summary: summaryMatch ? summaryMatch[1] : rawText.slice(0, 120) || "Ringkasan gagal diproses."
+              topic: "Umum",
+              summary: rawText.slice(0, 150) || "Ringkasan gagal diproses."
             };
           }
         } catch (err) {
           console.error('AI Fetch Error:', err);
-          alert('Gagal terhubung ke Gemini: ' + err.message);
+          
+          if (err.name === 'AbortError') {
+            alert('⏰ Timeout: AI membutuhkan waktu terlalu lama. Coba lagi.');
+          } else {
+            alert('❌ Gagal terhubung ke Gemini: ' + err.message);
+          }
+          
           return {
             topic: "Lainnya",
             summary: "Terjadi kesalahan saat memproses AI."
@@ -610,6 +719,8 @@
 
       // ================== CRUD OPERATIONS ==================
       async function saveEntry() {
+        if (isProcessing) return;
+
         const dateVal = dateInput.value;
         const noteVal = noteInput.value.trim();
         const understanding = parseInt(understandingSelect.value, 10);
@@ -620,7 +731,7 @@
           return;
         }
 
-        // Disable button
+        isProcessing = true;
         submitBtn.disabled = true;
         submitBtn.textContent = '⏳ Memproses AI...';
 
@@ -638,7 +749,8 @@
                 topic: aiResult.topic || "Umum",
                 note: noteVal,
                 summary: aiResult.summary || "",
-                understanding: understanding
+                understanding: understanding,
+                updatedAt: Date.now()
               };
             }
           } else {
@@ -649,16 +761,19 @@
               topic: aiResult.topic || "Umum",
               note: noteVal,
               summary: aiResult.summary || "",
-              understanding: understanding
+              understanding: understanding,
+              createdAt: Date.now()
             };
             data.unshift(newEntry);
           }
 
           persistData();
           resetForm();
+          showToast('✅ Catatan berhasil disimpan!');
         } catch (e) {
           alert('Terjadi kesalahan: ' + e.message);
         } finally {
+          isProcessing = false;
           submitBtn.disabled = false;
           submitBtn.textContent = '⚡ Simpan & Proses AI';
         }
@@ -678,6 +793,7 @@
         cancelBtn.style.display = 'inline-flex';
         
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        noteInput.focus();
       }
 
       function deleteEntry(id) {
@@ -685,6 +801,7 @@
           data = data.filter(x => x.id !== id);
           if (editingId === id) resetForm();
           persistData();
+          showToast('🗑️ Catatan dihapus');
         }
       }
 
